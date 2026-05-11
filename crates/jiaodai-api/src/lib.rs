@@ -12,7 +12,9 @@
 pub mod routes;
 pub mod state;
 pub mod middleware;
+pub mod agent;
 
 pub use routes::app;
 pub use state::AppState;
 pub use middleware::{cors_layer, auth_middleware, RateLimitConfig, NotificationEvent};
+pub use agent::*;

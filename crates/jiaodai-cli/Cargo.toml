@@ -1,0 +1,20 @@
+[package]
+name = "jiaodai-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "CLI entry point for the Jiaodai time-seal platform"
+
+[[bin]]
+name = "jiaodai"
+path = "src/main.rs"
+
+[dependencies]
+jiaodai-core = { workspace = true }
+jiaodai-api = { workspace = true }
+axum = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+anyhow = { workspace = true }

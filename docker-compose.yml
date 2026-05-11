@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  jiaodai:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - JIAODAI_PORT=3000
+      - JIAODAI_DB_PATH=/app/data/jiaodai.db
+      - JIAODAI_LOG_LEVEL=info
+    volumes:
+      - jiaodai-data:/app/data
+    restart: unless-stopped
+
+volumes:
+  jiaodai-data:

@@ -1,0 +1,18 @@
+[package]
+name = "jiaodai-unseal"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Unseal engine for the Jiaodai platform: condition state machine, heartbeat, date, multi-confirm"
+
+[dependencies]
+jiaodai-core = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }
+anyhow = { workspace = true }
+async-trait = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }

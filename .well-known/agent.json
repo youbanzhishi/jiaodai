@@ -1,0 +1,13 @@
+{
+  "name": "jiaodai",
+  "description": "时间封存平台 - Seal now, open when conditions met",
+  "version": "0.1.0",
+  "capabilities": ["seal", "unseal", "verify", "match"],
+  "endpoints": {
+    "seal": "POST /api/v1/seal",
+    "unseal": "POST /api/v1/unseal/{id}",
+    "verify": "GET /api/v1/tape/{id}/verify",
+    "match": "GET /api/v1/match/check",
+    "status": "GET /api/v1/tape/{id}/status"
+  }
+}

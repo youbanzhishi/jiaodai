@@ -1,0 +1,25 @@
+[package]
+name = "jiaodai-api"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Axum HTTP API for the Jiaodai platform"
+
+[dependencies]
+jiaodai-core = { workspace = true }
+jiaodai-seal = { workspace = true }
+jiaodai-unseal = { workspace = true }
+jiaodai-match = { workspace = true }
+jiaodai-chain = { workspace = true }
+axum = { workspace = true }
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }
+anyhow = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+tower = { workspace = true }
+tower-http = { workspace = true }

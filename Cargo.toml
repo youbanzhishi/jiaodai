@@ -1,0 +1,65 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/jiaodai-core",
+    "crates/jiaodai-seal",
+    "crates/jiaodai-unseal",
+    "crates/jiaodai-match",
+    "crates/jiaodai-chain",
+    "crates/jiaodai-api",
+    "crates/jiaodai-cli",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/youbanzhishi/jiaodai"
+
+[workspace.dependencies]
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+async-trait = "0.1"
+
+# Web framework
+axum = "0.8"
+tower = "0.5"
+tower-http = { version = "0.6", features = ["cors", "trace"] }
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Error handling
+anyhow = "1"
+thiserror = "2"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Time
+chrono = { version = "0.4", features = ["serde"] }
+
+# UUID
+uuid = { version = "1", features = ["v4", "serde"] }
+
+# Database
+rusqlite = { version = "0.31", features = ["bundled"] }
+
+# Crypto
+sha2 = "0.10"
+aes-gcm = "0.10"
+hmac = "0.12"
+rand = "0.8"
+
+# Blockchain
+ethers = "2"
+
+# Internal crates
+jiaodai-core = { path = "crates/jiaodai-core" }
+jiaodai-seal = { path = "crates/jiaodai-seal" }
+jiaodai-unseal = { path = "crates/jiaodai-unseal" }
+jiaodai-match = { path = "crates/jiaodai-match" }
+jiaodai-chain = { path = "crates/jiaodai-chain" }
+jiaodai-api = { path = "crates/jiaodai-api" }

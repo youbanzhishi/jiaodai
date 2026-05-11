@@ -1,14 +1,26 @@
 //! Application state shared across API handlers
 
+use crate::middleware::RateLimitConfig;
+
 /// Shared application state
 #[derive(Clone)]
 pub struct AppState {
-    // Phase 2+: database pool, seal engine, etc.
+    /// Rate limiting configuration
+    pub rate_limit_config: RateLimitConfig,
 }
 
 impl AppState {
     pub fn new() -> Self {
-        Self {}
+        Self {
+            rate_limit_config: RateLimitConfig::default(),
+        }
+    }
+
+    /// Create with custom rate limit config
+    pub fn with_rate_limit(config: RateLimitConfig) -> Self {
+        Self {
+            rate_limit_config: config,
+        }
     }
 }
 

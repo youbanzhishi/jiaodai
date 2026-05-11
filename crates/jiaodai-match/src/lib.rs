@@ -7,5 +7,10 @@
 //! If only one direction exists, there is zero information leakage.
 
 mod engine;
+mod passive;
+mod search;
 
 pub use engine::*;
+pub use passive::*;
+// Re-export specific items from search to avoid ambiguous glob
+pub use search::{PhoneSearchService, phone_hash, SearchResult};

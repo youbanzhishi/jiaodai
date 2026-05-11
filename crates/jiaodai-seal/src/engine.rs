@@ -10,13 +10,38 @@ use jiaodai_core::{
 };
 
 use crate::crypto::{aes256gcm_encrypt, generate_aes_key, sha256_hash};
+use crate::event::{SealEvent, SealEventBus};
+use crate::hash_store::HashStore;
+use crate::certificate::CertificateManager;
 
-/// Default implementation of the SealEngine
-pub struct DefaultSealEngine;
+/// Default implementation of the SealEngine with event bus and hash store
+pub struct DefaultSealEngine {
+    hash_store: HashStore,
+    event_bus: SealEventBus,
+}
 
 impl DefaultSealEngine {
+    /// Create a new seal engine
     pub fn new() -> Self {
-        Self
+        Self {
+            hash_store: HashStore::new(),
+            event_bus: SealEventBus::new(),
+        }
+    }
+
+    /// Get a reference to the hash store
+    pub fn hash_store(&self) -> &HashStore {
+        &self.hash_store
+    }
+
+    /// Get a reference to the event bus
+    pub fn event_bus(&self) -> &SealEventBus {
+        &self.event_bus
+    }
+
+    /// Get a mutable reference to the event bus for subscribing
+    pub fn event_bus_mut(&mut self) -> &mut SealEventBus {
+        &mut self.event_bus
     }
 }
 
@@ -42,6 +67,9 @@ impl SealEngine for DefaultSealEngine {
         let now = Utc::now();
         let tape_id = Uuid::new_v4().to_string();
 
+        // Record the content hash
+        self.hash_store.record_hash(&tape_id, &content_hash);
+
         let tape = Tape {
             id: tape_id.clone(),
             creator_id: creator_id.to_string(),
@@ -56,15 +84,32 @@ impl SealEngine for DefaultSealEngine {
             unsealed_at: None,
         };
 
-        let certificate = SealCertificate {
-            tape_id,
-            sealed_at: now,
-            content_hash,
-            chain_tx_hash: None,
-            chain_block_number: None,
-            trigger_condition: condition,
+        // Generate seal certificate
+        let certificate = CertificateManager::generate_certificate(
+            &tape_id,
+            now,
+            &content_hash,
+            condition,
             viewers,
-        };
+        );
+
+        // Broadcast events
+        let hash_hex = content_hash.iter().map(|b| format!("{:02x}", b)).collect::<String>();
+        self.event_bus.broadcast(&SealEvent::TapeSealed {
+            tape_id: tape_id.clone(),
+            creator_id: creator_id.to_string(),
+            content_hash: hash_hex.clone(),
+            at: now,
+        });
+        self.event_bus.broadcast(&SealEvent::HashRecorded {
+            tape_id: tape_id.clone(),
+            content_hash: hash_hex,
+            at: now,
+        });
+        self.event_bus.broadcast(&SealEvent::CertificateGenerated {
+            tape_id,
+            at: now,
+        });
 
         Ok((tape, certificate))
     }
@@ -122,5 +167,41 @@ mod tests {
         assert_eq!(tape.creator_id, "creator-123");
         assert!(tape.sealed_at.is_some());
         assert_eq!(cert.tape_id, tape.id);
+    }
+
+    #[tokio::test]
+    async fn test_seal_records_hash() {
+        let engine = DefaultSealEngine::new();
+        let content = TextContent::new(b"Test content for hash".to_vec());
+        let condition = TriggerCondition::DateTrigger {
+            open_at: Utc::now() + chrono::Duration::days(1),
+        };
+
+        let (tape, _) = engine
+            .seal(&content, condition, vec![Viewer::Anyone], "creator-1")
+            .await
+            .unwrap();
+
+        // Verify hash was recorded
+        let record = engine.hash_store().get_record(&tape.id);
+        assert!(record.is_some());
+        assert!(!record.unwrap().on_chain);
+    }
+
+    #[tokio::test]
+    async fn test_seal_certificate_sharing() {
+        let engine = DefaultSealEngine::new();
+        let content = TextContent::new(b"Shareable content".to_vec());
+        let condition = TriggerCondition::DateTrigger {
+            open_at: Utc::now() + chrono::Duration::days(1),
+        };
+
+        let (_, cert) = engine
+            .seal(&content, condition, vec![Viewer::Anyone], "creator-1")
+            .await
+            .unwrap();
+
+        let share = CertificateManager::generate_share(&cert.tape_id, crate::certificate::ShareMethod::ShortLink);
+        assert!(share.short_link.contains(&cert.tape_id));
     }
 }

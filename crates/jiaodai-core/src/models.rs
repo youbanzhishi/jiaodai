@@ -137,9 +137,10 @@ pub struct Confirmer {
 }
 
 /// The type of trigger condition
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
 #[serde(rename_all = "snake_case")]
 pub enum ConditionType {
+
     Heartbeat,
     MutualMatch,
     DateTrigger,

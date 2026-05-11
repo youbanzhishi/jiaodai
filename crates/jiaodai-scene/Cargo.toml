@@ -1,0 +1,26 @@
+[package]
+name = "jiaodai-scene"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Scene implementations for the Jiaodai platform: crush, will, capsule"
+
+[dependencies]
+jiaodai-core = { workspace = true }
+jiaodai-seal = { workspace = true }
+jiaodai-unseal = { workspace = true }
+jiaodai-match = { workspace = true }
+jiaodai-auth = { workspace = true }
+jiaodai-chain = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+async-trait = { workspace = true }
+sha2 = { workspace = true }
+rand = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }

@@ -8,6 +8,8 @@ members = [
     "crates/jiaodai-chain",
     "crates/jiaodai-api",
     "crates/jiaodai-cli",
+    "crates/jiaodai-auth",
+    "crates/jiaodai-scene",
 ]
 
 [workspace.package]
@@ -63,3 +65,5 @@ jiaodai-unseal = { path = "crates/jiaodai-unseal" }
 jiaodai-match = { path = "crates/jiaodai-match" }
 jiaodai-chain = { path = "crates/jiaodai-chain" }
 jiaodai-api = { path = "crates/jiaodai-api" }
+jiaodai-auth = { path = "crates/jiaodai-auth" }
+jiaodai-scene = { path = "crates/jiaodai-scene" }

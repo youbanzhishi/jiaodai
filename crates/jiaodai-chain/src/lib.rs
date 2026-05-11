@@ -7,9 +7,15 @@
 //! - L2 contract interaction (ethers-rs)
 //! - Proof verification API
 //! - Local hash backup for chain-unavailable degradation
+//! - Batch scheduling for periodic on-chain submission
+//! - Solidity contract definition (TimestampRegistry)
 
-mod merkle;
-mod engine;
+pub mod merkle;
+pub mod engine;
+pub mod scheduler;
+pub mod contract;
 
 pub use engine::*;
 pub use merkle::*;
+pub use scheduler::*;
+pub use contract::*;

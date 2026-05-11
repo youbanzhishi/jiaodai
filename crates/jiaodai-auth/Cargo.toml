@@ -1,0 +1,23 @@
+[package]
+name = "jiaodai-auth"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Account system for the Jiaodai platform: registration, login, phone binding, JWT, identity verification"
+
+[dependencies]
+jiaodai-core = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+async-trait = { workspace = true }
+sha2 = { workspace = true }
+hmac = { workspace = true }
+rand = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+hex = "0.4"

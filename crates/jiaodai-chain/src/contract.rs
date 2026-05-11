@@ -3,7 +3,7 @@
 //! Defines the TimestampRegistry Solidity contract and ABI
 //! for on-chain timestamp proofs.
 
-use serde::{Deserialize, Serialize};
+
 
 /// TimestampRegistry Solidity contract source code
 pub const TIMESTAMP_REGISTRY_SOL: &str = r#"

@@ -10,6 +10,7 @@
 //! - SealCertificate generation and sharing
 //! - Seal event bus
 //! - OpenLink Identity Card + short link sharing
+//! - OpenVault integration (file references + Shamir SSS)
 
 mod engine;
 mod crypto;
@@ -18,6 +19,7 @@ mod hash_store;
 pub mod certificate;
 mod event;
 pub mod openlink;
+pub mod vault;
 
 pub use crypto::*;
 pub use engine::*;
@@ -26,3 +28,4 @@ pub use hash_store::*;
 pub use certificate::*;
 pub use event::*;
 pub use openlink::*;
+pub use vault::*;

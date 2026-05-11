@@ -1,60 +1,23 @@
 //! Shamir's Secret Sharing for key splitting
 //!
-//! Splits a secret key into N shares, requiring M shares to reconstruct.
-//! Used for distributing key shares to viewers/confirmers.
+//! Delegates to the vault module's full GF(256) implementation.
+//! The vault module provides both split and reconstruct with
+//! proper Shamir's Secret Sharing over GF(256).
 
-use jiaodai_core::{JiaodaiError, KeyShare, Result};
+use jiaodai_core::{KeyShare, Result};
 
 /// Split a secret into N shares with a threshold of M
 ///
 /// Uses Shamir's Secret Sharing over GF(256).
-/// Currently provides a placeholder implementation; the full SSS
-/// implementation will use the `shamirsecretsharing` crate in Phase 3.
 pub fn split_secret(secret: &[u8], threshold: u8, shares: u8) -> Result<Vec<KeyShare>> {
-    if threshold == 0 || shares == 0 {
-        return Err(JiaodaiError::KeyShareError(
-            "Threshold and shares must be > 0".to_string(),
-        ));
-    }
-    if threshold > shares {
-        return Err(JiaodaiError::KeyShareError(format!(
-            "Threshold ({}) cannot exceed total shares ({})",
-            threshold, shares
-        )));
-    }
-    if secret.is_empty() {
-        return Err(JiaodaiError::KeyShareError(
-            "Secret cannot be empty".to_string(),
-        ));
-    }
-
-    // Placeholder: for Phase 1, we create simple XOR-based shares
-    // This will be replaced with proper Shamir's Secret Sharing in Phase 3
-    let mut key_shares = Vec::with_capacity(shares as usize);
-    use rand::RngCore;
-    let mut rng = rand::thread_rng();
-
-    for i in 0..shares {
-        let mut data = vec![0u8; secret.len()];
-        rng.fill_bytes(&mut data);
-        key_shares.push(KeyShare { index: i, data });
-    }
-
-    Ok(key_shares)
+    crate::vault::shamir_split(secret, threshold, shares)
 }
 
 /// Reconstruct a secret from M shares
 ///
-/// Placeholder implementation for Phase 1.
+/// Uses Lagrange interpolation over GF(256).
 pub fn reconstruct_secret(shares: &[KeyShare]) -> Result<Vec<u8>> {
-    if shares.is_empty() {
-        return Err(JiaodaiError::KeyShareError(
-            "Need at least one share".to_string(),
-        ));
-    }
-    // Placeholder: return the first share's data
-    // Will be replaced with proper Shamir reconstruction in Phase 3
-    Ok(shares[0].data.clone())
+    crate::vault::shamir_reconstruct(shares)
 }
 
 #[cfg(test)]
@@ -69,6 +32,19 @@ mod tests {
         for share in &shares {
             assert_eq!(share.data.len(), secret.len());
         }
+    }
+
+    #[test]
+    fn test_split_reconstruct_roundtrip() {
+        let secret = b"test-key-roundtrip-32bytes!!!!!";
+        let shares = split_secret(secret, 3, 5).unwrap();
+
+        // Reconstruct with different subsets
+        let r1 = reconstruct_secret(&shares[0..3]).unwrap();
+        let r2 = reconstruct_secret(&[shares[1].clone(), shares[3].clone(), shares[4].clone()]).unwrap();
+
+        assert_eq!(r1, secret.to_vec());
+        assert_eq!(r2, secret.to_vec());
     }
 
     #[test]

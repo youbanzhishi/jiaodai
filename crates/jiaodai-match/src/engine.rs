@@ -77,19 +77,43 @@ impl DefaultMatchEngine {
         // Find our entry
         let our_entry = match entries.iter().find(|e| e.tape_id == tape_id) {
             Some(e) => e,
-            None => return MatchResult { matched: false, matched_tape_id: None, matched_account_id: None },
+            None => {
+                return MatchResult {
+                    matched: false,
+                    matched_tape_id: None,
+                    matched_account_id: None,
+                }
+            }
         };
 
         // Find target's account ID
-        let target_account_id = match phone_map.iter().find(|(h, _)| h == &our_entry.target_phone_hash) {
+        let target_account_id = match phone_map
+            .iter()
+            .find(|(h, _)| h == &our_entry.target_phone_hash)
+        {
             Some((_, id)) => id,
-            None => return MatchResult { matched: false, matched_tape_id: None, matched_account_id: None },
+            None => {
+                return MatchResult {
+                    matched: false,
+                    matched_tape_id: None,
+                    matched_account_id: None,
+                }
+            }
         };
 
         // Find target's phone hash (hash of A's phone)
-        let our_phone_hash = match phone_map.iter().find(|(_, id)| id == &our_entry.creator_account_id) {
+        let our_phone_hash = match phone_map
+            .iter()
+            .find(|(_, id)| id == &our_entry.creator_account_id)
+        {
             Some((h, _)) => h,
-            None => return MatchResult { matched: false, matched_tape_id: None, matched_account_id: None },
+            None => {
+                return MatchResult {
+                    matched: false,
+                    matched_tape_id: None,
+                    matched_account_id: None,
+                }
+            }
         };
 
         // Check if target has an entry targeting A

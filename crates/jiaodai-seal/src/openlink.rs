@@ -15,7 +15,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
-use jiaodai_core::{JiaodaiError, SealCertificate, Result};
+use jiaodai_core::{JiaodaiError, Result, SealCertificate};
 
 /// An OpenLink Identity Card derived from a seal certificate
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -109,11 +109,9 @@ impl IdentityCardManager {
     }
 
     /// Generate an Identity Card from a seal certificate
-    pub fn generate_identity_card(
-        &self,
-        certificate: &SealCertificate,
-    ) -> IdentityCard {
-        let content_hash_hex: String = certificate.content_hash
+    pub fn generate_identity_card(&self, certificate: &SealCertificate) -> IdentityCard {
+        let content_hash_hex: String = certificate
+            .content_hash
             .iter()
             .map(|b| format!("{:02x}", b))
             .collect();
@@ -188,7 +186,8 @@ impl IdentityCardManager {
 
     /// Increment access count for a short link
     pub fn record_access(&self, short_code: &str) {
-        if let Some(link) = self.short_links
+        if let Some(link) = self
+            .short_links
             .lock()
             .unwrap()
             .iter_mut()
@@ -205,7 +204,8 @@ impl IdentityCardManager {
         certificate: &SealCertificate,
     ) -> VerificationResult {
         // Check hash integrity
-        let expected_hash: String = certificate.content_hash
+        let expected_hash: String = certificate
+            .content_hash
             .iter()
             .map(|b| format!("{:02x}", b))
             .collect();
@@ -239,14 +239,16 @@ impl IdentityCardManager {
 
     /// Serialize an Identity Card to JSON
     pub fn serialize_card(card: &IdentityCard) -> Result<String> {
-        serde_json::to_string_pretty(card)
-            .map_err(|e| JiaodaiError::SerializationError(format!("Card serialization failed: {}", e)))
+        serde_json::to_string_pretty(card).map_err(|e| {
+            JiaodaiError::SerializationError(format!("Card serialization failed: {}", e))
+        })
     }
 
     /// Deserialize an Identity Card from JSON
     pub fn deserialize_card(data: &str) -> Result<IdentityCard> {
-        serde_json::from_str(data)
-            .map_err(|e| JiaodaiError::SerializationError(format!("Card deserialization failed: {}", e)))
+        serde_json::from_str(data).map_err(|e| {
+            JiaodaiError::SerializationError(format!("Card deserialization failed: {}", e))
+        })
     }
 }
 
@@ -262,13 +264,14 @@ fn summarize_trigger_condition(condition: &jiaodai_core::TriggerCondition) -> St
         jiaodai_core::TriggerCondition::Heartbeat { timeout_days, .. } => {
             format!("heartbeat_timeout_{}d", timeout_days)
         }
-        jiaodai_core::TriggerCondition::MutualMatch { .. } => {
-            "mutual_match".to_string()
-        }
+        jiaodai_core::TriggerCondition::MutualMatch { .. } => "mutual_match".to_string(),
         jiaodai_core::TriggerCondition::DateTrigger { open_at } => {
             format!("date_trigger_{}", open_at.format("%Y%m%d"))
         }
-        jiaodai_core::TriggerCondition::MultiConfirm { threshold, confirmers } => {
+        jiaodai_core::TriggerCondition::MultiConfirm {
+            threshold,
+            confirmers,
+        } => {
             format!("multi_confirm_{}_of_{}", threshold, confirmers.len())
         }
         jiaodai_core::TriggerCondition::Composite { conditions, logic } => {
@@ -447,12 +450,15 @@ mod tests {
         assert_eq!(
             summarize_trigger_condition(&TriggerCondition::MultiConfirm {
                 threshold: 3,
-                confirmers: vec![jiaodai_core::Confirmer {
-                    account_id: None,
-                    phone_hash: None,
-                    name: "a".to_string(),
-                    last_confirmed_at: None,
-                }; 5],
+                confirmers: vec![
+                    jiaodai_core::Confirmer {
+                        account_id: None,
+                        phone_hash: None,
+                        name: "a".to_string(),
+                        last_confirmed_at: None,
+                    };
+                    5
+                ],
             }),
             "multi_confirm_3_of_5"
         );

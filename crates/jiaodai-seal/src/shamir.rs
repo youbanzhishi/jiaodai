@@ -41,7 +41,8 @@ mod tests {
 
         // Reconstruct with different subsets
         let r1 = reconstruct_secret(&shares[0..3]).unwrap();
-        let r2 = reconstruct_secret(&[shares[1].clone(), shares[3].clone(), shares[4].clone()]).unwrap();
+        let r2 =
+            reconstruct_secret(&[shares[1].clone(), shares[3].clone(), shares[4].clone()]).unwrap();
 
         assert_eq!(r1, secret.to_vec());
         assert_eq!(r2, secret.to_vec());

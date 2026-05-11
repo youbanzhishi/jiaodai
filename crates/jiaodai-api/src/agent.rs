@@ -203,115 +203,181 @@ impl ActionMiddleware {
 pub fn build_agent_definition() -> AgentDefinition {
     let mut capabilities = std::collections::HashMap::new();
 
-    capabilities.insert("seal".to_string(), AgentCapability {
-        description: "Create a sealed tape with encrypted content".to_string(),
-        endpoint: "POST /api/v1/seal".to_string(),
-        parameters: vec!["content_type".into(), "trigger_condition".into(), "viewers".into()],
-        auth_required: true,
-        method: "POST".to_string(),
-    });
+    capabilities.insert(
+        "seal".to_string(),
+        AgentCapability {
+            description: "Create a sealed tape with encrypted content".to_string(),
+            endpoint: "POST /api/v1/seal".to_string(),
+            parameters: vec![
+                "content_type".into(),
+                "trigger_condition".into(),
+                "viewers".into(),
+            ],
+            auth_required: true,
+            method: "POST".to_string(),
+        },
+    );
 
-    capabilities.insert("unseal".to_string(), AgentCapability {
-        description: "Attempt to unseal a tape".to_string(),
-        endpoint: "POST /api/v1/unseal/{id}".to_string(),
-        parameters: vec!["identity_claim".into()],
-        auth_required: true,
-        method: "POST".to_string(),
-    });
+    capabilities.insert(
+        "unseal".to_string(),
+        AgentCapability {
+            description: "Attempt to unseal a tape".to_string(),
+            endpoint: "POST /api/v1/unseal/{id}".to_string(),
+            parameters: vec!["identity_claim".into()],
+            auth_required: true,
+            method: "POST".to_string(),
+        },
+    );
 
-    capabilities.insert("verify".to_string(), AgentCapability {
-        description: "Verify a tape's integrity and chain proof".to_string(),
-        endpoint: "GET /api/v1/tape/{id}/verify".to_string(),
-        parameters: vec!["tape_id".into()],
-        auth_required: false,
-        method: "GET".to_string(),
-    });
+    capabilities.insert(
+        "verify".to_string(),
+        AgentCapability {
+            description: "Verify a tape's integrity and chain proof".to_string(),
+            endpoint: "GET /api/v1/tape/{id}/verify".to_string(),
+            parameters: vec!["tape_id".into()],
+            auth_required: false,
+            method: "GET".to_string(),
+        },
+    );
 
-    capabilities.insert("status".to_string(), AgentCapability {
-        description: "Get tape status".to_string(),
-        endpoint: "GET /api/v1/tape/{id}/status".to_string(),
-        parameters: vec!["tape_id".into()],
-        auth_required: true,
-        method: "GET".to_string(),
-    });
+    capabilities.insert(
+        "status".to_string(),
+        AgentCapability {
+            description: "Get tape status".to_string(),
+            endpoint: "GET /api/v1/tape/{id}/status".to_string(),
+            parameters: vec!["tape_id".into()],
+            auth_required: true,
+            method: "GET".to_string(),
+        },
+    );
 
-    capabilities.insert("match".to_string(), AgentCapability {
-        description: "Check for mutual match".to_string(),
-        endpoint: "GET /api/v1/match/check".to_string(),
-        parameters: vec!["tape_id".into()],
-        auth_required: true,
-        method: "GET".to_string(),
-    });
+    capabilities.insert(
+        "match".to_string(),
+        AgentCapability {
+            description: "Check for mutual match".to_string(),
+            endpoint: "GET /api/v1/match/check".to_string(),
+            parameters: vec!["tape_id".into()],
+            auth_required: true,
+            method: "GET".to_string(),
+        },
+    );
 
-    capabilities.insert("crush_search".to_string(), AgentCapability {
-        description: "Search phone number for crush scenario".to_string(),
-        endpoint: "POST /api/v1/crush/search".to_string(),
-        parameters: vec!["phone".into()],
-        auth_required: true,
-        method: "POST".to_string(),
-    });
+    capabilities.insert(
+        "crush_search".to_string(),
+        AgentCapability {
+            description: "Search phone number for crush scenario".to_string(),
+            endpoint: "POST /api/v1/crush/search".to_string(),
+            parameters: vec!["phone".into()],
+            auth_required: true,
+            method: "POST".to_string(),
+        },
+    );
 
-    capabilities.insert("will_create".to_string(), AgentCapability {
-        description: "Create will with heartbeat trigger".to_string(),
-        endpoint: "POST /api/v1/will/create".to_string(),
-        parameters: vec!["creator_id".into(), "heartbeat_interval_days".into(), "grace_period_days".into(), "viewers".into()],
-        auth_required: true,
-        method: "POST".to_string(),
-    });
+    capabilities.insert(
+        "will_create".to_string(),
+        AgentCapability {
+            description: "Create will with heartbeat trigger".to_string(),
+            endpoint: "POST /api/v1/will/create".to_string(),
+            parameters: vec![
+                "creator_id".into(),
+                "heartbeat_interval_days".into(),
+                "grace_period_days".into(),
+                "viewers".into(),
+            ],
+            auth_required: true,
+            method: "POST".to_string(),
+        },
+    );
 
-    capabilities.insert("capsule_create".to_string(), AgentCapability {
-        description: "Create time capsule".to_string(),
-        endpoint: "POST /api/v1/capsule/create".to_string(),
-        parameters: vec!["creator_id".into(), "open_at".into(), "viewers".into(), "timezone".into()],
-        auth_required: true,
-        method: "POST".to_string(),
-    });
+    capabilities.insert(
+        "capsule_create".to_string(),
+        AgentCapability {
+            description: "Create time capsule".to_string(),
+            endpoint: "POST /api/v1/capsule/create".to_string(),
+            parameters: vec![
+                "creator_id".into(),
+                "open_at".into(),
+                "viewers".into(),
+                "timezone".into(),
+            ],
+            auth_required: true,
+            method: "POST".to_string(),
+        },
+    );
 
-    capabilities.insert("chain_verify".to_string(), AgentCapability {
-        description: "Verify on-chain timestamp proof".to_string(),
-        endpoint: "GET /api/v1/chain/verify/{tape_id}".to_string(),
-        parameters: vec!["tape_id".into()],
-        auth_required: false,
-        method: "GET".to_string(),
-    });
+    capabilities.insert(
+        "chain_verify".to_string(),
+        AgentCapability {
+            description: "Verify on-chain timestamp proof".to_string(),
+            endpoint: "GET /api/v1/chain/verify/{tape_id}".to_string(),
+            parameters: vec!["tape_id".into()],
+            auth_required: false,
+            method: "GET".to_string(),
+        },
+    );
 
-    capabilities.insert("identity_card".to_string(), AgentCapability {
-        description: "Get OpenLink Identity Card for a tape".to_string(),
-        endpoint: "GET /api/v1/openlink/identity-card/{tape_id}".to_string(),
-        parameters: vec!["tape_id".into()],
-        auth_required: false,
-        method: "GET".to_string(),
-    });
+    capabilities.insert(
+        "identity_card".to_string(),
+        AgentCapability {
+            description: "Get OpenLink Identity Card for a tape".to_string(),
+            endpoint: "GET /api/v1/openlink/identity-card/{tape_id}".to_string(),
+            parameters: vec!["tape_id".into()],
+            auth_required: false,
+            method: "GET".to_string(),
+        },
+    );
 
-    capabilities.insert("verify_identity_card".to_string(), AgentCapability {
-        description: "Verify an Identity Card's integrity".to_string(),
-        endpoint: "POST /api/v1/openlink/verify/{tape_id}".to_string(),
-        parameters: vec!["tape_id".into(), "content_hash".into()],
-        auth_required: false,
-        method: "POST".to_string(),
-    });
+    capabilities.insert(
+        "verify_identity_card".to_string(),
+        AgentCapability {
+            description: "Verify an Identity Card's integrity".to_string(),
+            endpoint: "POST /api/v1/openlink/verify/{tape_id}".to_string(),
+            parameters: vec!["tape_id".into(), "content_hash".into()],
+            auth_required: false,
+            method: "POST".to_string(),
+        },
+    );
 
-    capabilities.insert("vault_create_ref".to_string(), AgentCapability {
-        description: "Create vault file reference for large files".to_string(),
-        endpoint: "POST /api/v1/vault/ref".to_string(),
-        parameters: vec!["tape_id".into(), "vault_file_id".into(), "key_shares".into()],
-        auth_required: true,
-        method: "POST".to_string(),
-    });
+    capabilities.insert(
+        "vault_create_ref".to_string(),
+        AgentCapability {
+            description: "Create vault file reference for large files".to_string(),
+            endpoint: "POST /api/v1/vault/ref".to_string(),
+            parameters: vec![
+                "tape_id".into(),
+                "vault_file_id".into(),
+                "key_shares".into(),
+            ],
+            auth_required: true,
+            method: "POST".to_string(),
+        },
+    );
 
-    capabilities.insert("vault_retrieve".to_string(), AgentCapability {
-        description: "Retrieve and decrypt vault file".to_string(),
-        endpoint: "POST /api/v1/vault/retrieve/{tape_id}".to_string(),
-        parameters: vec!["tape_id".into(), "shares".into()],
-        auth_required: true,
-        method: "POST".to_string(),
-    });
+    capabilities.insert(
+        "vault_retrieve".to_string(),
+        AgentCapability {
+            description: "Retrieve and decrypt vault file".to_string(),
+            endpoint: "POST /api/v1/vault/retrieve/{tape_id}".to_string(),
+            parameters: vec!["tape_id".into(), "shares".into()],
+            auth_required: true,
+            method: "POST".to_string(),
+        },
+    );
 
     let mut endpoints = std::collections::HashMap::new();
     endpoints.insert("health".to_string(), "GET /api/v1/health".to_string());
-    endpoints.insert("openapi".to_string(), "GET /api/v1/openapi.json".to_string());
-    endpoints.insert("websocket".to_string(), "WS /api/v1/ws/notifications".to_string());
-    endpoints.insert("agent_discovery".to_string(), "GET /.well-known/agent.json".to_string());
+    endpoints.insert(
+        "openapi".to_string(),
+        "GET /api/v1/openapi.json".to_string(),
+    );
+    endpoints.insert(
+        "websocket".to_string(),
+        "WS /api/v1/ws/notifications".to_string(),
+    );
+    endpoints.insert(
+        "agent_discovery".to_string(),
+        "GET /.well-known/agent.json".to_string(),
+    );
 
     AgentDefinition {
         name: "jiaodai".to_string(),
@@ -375,7 +441,8 @@ mod tests {
         let logs = mw.get_recent_logs(10);
         assert_eq!(logs.len(), 3);
 
-        let agent1_logs = mw.get_recent_logs(10)
+        let agent1_logs = mw
+            .get_recent_logs(10)
             .into_iter()
             .filter(|l| l.agent_id == "agent-1")
             .count();
@@ -442,6 +509,9 @@ mod tests {
     fn test_openmind_integration() {
         let def = build_agent_definition();
         assert_eq!(def.openmind_integration.status, "placeholder");
-        assert_eq!(def.openmind_integration.endpoint, "POST /api/v1/openmind/search");
+        assert_eq!(
+            def.openmind_integration.endpoint,
+            "POST /api/v1/openmind/search"
+        );
     }
 }

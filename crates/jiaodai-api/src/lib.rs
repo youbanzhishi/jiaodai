@@ -9,12 +9,12 @@
 //! - OpenAPI/Swagger spec endpoint
 //! - Rate limiting configuration
 
+pub mod agent;
+pub mod middleware;
 pub mod routes;
 pub mod state;
-pub mod middleware;
-pub mod agent;
 
+pub use agent::*;
+pub use middleware::{auth_middleware, cors_layer, NotificationEvent, RateLimitConfig};
 pub use routes::app;
 pub use state::AppState;
-pub use middleware::{cors_layer, auth_middleware, RateLimitConfig, NotificationEvent};
-pub use agent::*;

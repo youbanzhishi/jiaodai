@@ -11,15 +11,15 @@
 //! - SMS service provider interface (mock)
 
 pub mod account;
+pub mod event;
+pub mod identity;
 pub mod jwt;
 pub mod phone;
 pub mod sms;
-pub mod identity;
-pub mod event;
 
 pub use account::*;
+pub use event::*;
+pub use identity::*;
 pub use jwt::*;
 pub use phone::*;
 pub use sms::*;
-pub use identity::*;
-pub use event::*;

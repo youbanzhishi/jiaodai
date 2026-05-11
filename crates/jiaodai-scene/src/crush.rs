@@ -13,7 +13,9 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use jiaodai_core::Result;
-use jiaodai_match::{DefaultMatchEngine, MatchResult, PassiveRegistrationManager, PhoneSearchService, phone_hash};
+use jiaodai_match::{
+    phone_hash, DefaultMatchEngine, MatchResult, PassiveRegistrationManager, PhoneSearchService,
+};
 
 /// Crush scene service
 pub struct CrushScene {
@@ -55,14 +57,16 @@ impl CrushScene {
         let creator_hash = phone_hash(creator_phone);
 
         // Register creator's phone → account mapping
-        self.match_engine.register_phone_account(&creator_hash, creator_account_id);
+        self.match_engine
+            .register_phone_account(&creator_hash, creator_account_id);
 
         // Check if target is registered
         let search_result = self.search_service.search(target_phone);
         let invitation_sent = if !search_result.registered {
             // Create passive registration invitation
             let tape_id = Uuid::new_v4().to_string();
-            self.passive_manager.create_invitation(&target_hash, creator_account_id, &tape_id);
+            self.passive_manager
+                .create_invitation(&target_hash, creator_account_id, &tape_id);
             true
         } else {
             false
@@ -76,7 +80,9 @@ impl CrushScene {
         // We use a simple async runtime for the trait method
         let rt = tokio::runtime::Runtime::new().unwrap();
         rt.block_on(async {
-            self.match_engine.register_for_matching(&tape_id_clone, &target_hash_clone).await
+            self.match_engine
+                .register_for_matching(&tape_id_clone, &target_hash_clone)
+                .await
         })?;
 
         // Check for immediate match

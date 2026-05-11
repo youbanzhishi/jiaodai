@@ -108,7 +108,7 @@ mod tests {
     #[test]
     fn test_validate_phone_format_invalid() {
         assert!(!validate_phone_format("23800138000")); // starts with 2
-        assert!(!validate_phone_format("1380013800"));  // 10 digits
+        assert!(!validate_phone_format("1380013800")); // 10 digits
         assert!(!validate_phone_format("138001380000")); // 12 digits
         assert!(!validate_phone_format("1380013800a")); // non-digit
     }

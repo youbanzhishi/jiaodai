@@ -53,7 +53,9 @@ pub struct ChainEventBus {
 
 impl ChainEventBus {
     pub fn new() -> Self {
-        Self { subscribers: Vec::new() }
+        Self {
+            subscribers: Vec::new(),
+        }
     }
 
     pub fn subscribe(&mut self, subscriber: Box<dyn ChainEventSubscriber>) {
@@ -68,7 +70,9 @@ impl ChainEventBus {
 }
 
 impl Default for ChainEventBus {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 /// A stored attestation record (for mock chain)
@@ -167,7 +171,10 @@ impl MockChainEngine {
             *ri += 1;
         }
 
-        let tx_hash = format!("0xmock_tx_{}", Uuid::new_v4().to_string().replace("-", "")[..16].to_string());
+        let tx_hash = format!(
+            "0xmock_tx_{}",
+            Uuid::new_v4().to_string().replace("-", "")[..16].to_string()
+        );
         let timestamp = Utc::now().timestamp();
 
         // Generate proofs for each tape
@@ -217,14 +224,17 @@ impl MockChainEngine {
         self.attestations.lock().unwrap().push(record);
 
         // Broadcast event
-        self.event_bus.lock().unwrap().broadcast(&ChainEvent::HashSubmitted {
-            batch_id: root_hex.clone(),
-            merkle_root: root_hex,
-            tx_hash: tx_hash.clone(),
-            block_number,
-            tape_count: tape_ids.len(),
-            at: Utc::now(),
-        });
+        self.event_bus
+            .lock()
+            .unwrap()
+            .broadcast(&ChainEvent::HashSubmitted {
+                batch_id: root_hex.clone(),
+                merkle_root: root_hex,
+                tx_hash: tx_hash.clone(),
+                block_number,
+                tape_count: tape_ids.len(),
+                at: Utc::now(),
+            });
 
         Ok(attestations)
     }
@@ -261,7 +271,9 @@ impl MockChainEngine {
 }
 
 impl Default for MockChainEngine {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 #[async_trait]
@@ -286,11 +298,14 @@ impl ChainTimestamp for MockChainEngine {
         });
 
         if found {
-            self.event_bus.lock().unwrap().broadcast(&ChainEvent::AttestationVerified {
-                tape_id: attestation.tape_id.clone(),
-                valid: true,
-                at: Utc::now(),
-            });
+            self.event_bus
+                .lock()
+                .unwrap()
+                .broadcast(&ChainEvent::AttestationVerified {
+                    tape_id: attestation.tape_id.clone(),
+                    valid: true,
+                    at: Utc::now(),
+                });
         }
 
         Ok(found)
@@ -370,7 +385,11 @@ mod tests {
     #[tokio::test]
     async fn test_mock_chain_batch_submit() {
         let engine = MockChainEngine::new();
-        let tape_ids = vec!["tape-1".to_string(), "tape-2".to_string(), "tape-3".to_string()];
+        let tape_ids = vec![
+            "tape-1".to_string(),
+            "tape-2".to_string(),
+            "tape-3".to_string(),
+        ];
         let hashes = vec![[1u8; 32], [2u8; 32], [3u8; 32]];
 
         let results = engine.submit_batch(&tape_ids, &hashes).unwrap();
@@ -426,7 +445,11 @@ mod tests {
             events: Mutex<Vec<ChainEvent>>,
         }
         impl TestSub {
-            fn new() -> Self { Self { events: Mutex::new(Vec::new()) } }
+            fn new() -> Self {
+                Self {
+                    events: Mutex::new(Vec::new()),
+                }
+            }
         }
         impl ChainEventSubscriber for TestSub {
             fn on_event(&self, event: &ChainEvent) {

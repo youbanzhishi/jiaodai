@@ -101,7 +101,9 @@ impl IdentityProvider for MockIdentityProvider {
                 confidence: 0.99,
             })
         } else {
-            Err(JiaodaiError::SerializationError("OCR scan failed (mock)".to_string()))
+            Err(JiaodaiError::SerializationError(
+                "OCR scan failed (mock)".to_string(),
+            ))
         }
     }
 
@@ -160,7 +162,10 @@ mod tests {
         let liveness = provider.liveness_check(&[]).await.unwrap();
         assert!(liveness.is_live);
 
-        let verify = provider.verify_identity("张三", "110101199001011234", &[]).await.unwrap();
+        let verify = provider
+            .verify_identity("张三", "110101199001011234", &[])
+            .await
+            .unwrap();
         assert!(verify.verified);
     }
 

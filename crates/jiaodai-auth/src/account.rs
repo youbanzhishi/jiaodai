@@ -9,9 +9,11 @@ use uuid::Uuid;
 use jiaodai_core::{Account, AccountStatus, IdentityInfo, JiaodaiError, PhoneBind, Result};
 
 use crate::event::{AccountEvent, EventBus};
-use crate::identity::{id_number_hash, IdentityProvider, IdentityVerificationResult, MockIdentityProvider};
+use crate::identity::{
+    id_number_hash, IdentityProvider, IdentityVerificationResult, MockIdentityProvider,
+};
 use crate::jwt::{JwtConfig, JwtManager, TokenPair};
-use crate::phone::{phone_encrypt, phone_hash, validate_phone_format, derive_phone_key};
+use crate::phone::{derive_phone_key, phone_encrypt, phone_hash, validate_phone_format};
 use crate::sms::{MockSmsProvider, SmsProvider, VerificationCodeManager};
 
 /// Account service configuration
@@ -81,19 +83,29 @@ impl AccountService {
     /// Send a verification code to a phone number for registration
     pub async fn send_register_code(&self, phone: &str) -> Result<()> {
         if !validate_phone_format(phone) {
-            return Err(JiaodaiError::SerializationError("Invalid phone number format".to_string()));
+            return Err(JiaodaiError::SerializationError(
+                "Invalid phone number format".to_string(),
+            ));
         }
 
         let hash = phone_hash(phone);
         let accounts = self.accounts.lock().unwrap();
-        if accounts.iter().any(|a| a.phone_numbers.iter().any(|p| p.phone_hash == hash)) {
-            return Err(JiaodaiError::SerializationError("Phone number already registered".to_string()));
+        if accounts
+            .iter()
+            .any(|a| a.phone_numbers.iter().any(|p| p.phone_hash == hash))
+        {
+            return Err(JiaodaiError::SerializationError(
+                "Phone number already registered".to_string(),
+            ));
         }
 
         let code = self.code_manager.generate_code(phone);
         let result = self.sms_provider.send_verification_code(phone, &code).await;
         if !result.success {
-            return Err(JiaodaiError::SerializationError(format!("SMS send failed: {}", result.message)));
+            return Err(JiaodaiError::SerializationError(format!(
+                "SMS send failed: {}",
+                result.message
+            )));
         }
 
         Ok(())
@@ -102,11 +114,15 @@ impl AccountService {
     /// Register a new account with phone + verification code
     pub async fn register(&self, phone: &str, code: &str) -> Result<(Account, TokenPair)> {
         if !validate_phone_format(phone) {
-            return Err(JiaodaiError::SerializationError("Invalid phone number format".to_string()));
+            return Err(JiaodaiError::SerializationError(
+                "Invalid phone number format".to_string(),
+            ));
         }
 
         if !self.code_manager.verify_code(phone, code) {
-            return Err(JiaodaiError::SerializationError("Invalid or expired verification code".to_string()));
+            return Err(JiaodaiError::SerializationError(
+                "Invalid or expired verification code".to_string(),
+            ));
         }
 
         let hash = phone_hash(phone);
@@ -159,19 +175,29 @@ impl AccountService {
     /// Send a verification code for login
     pub async fn send_login_code(&self, phone: &str) -> Result<()> {
         if !validate_phone_format(phone) {
-            return Err(JiaodaiError::SerializationError("Invalid phone number format".to_string()));
+            return Err(JiaodaiError::SerializationError(
+                "Invalid phone number format".to_string(),
+            ));
         }
 
         let hash = phone_hash(phone);
         let accounts = self.accounts.lock().unwrap();
-        if !accounts.iter().any(|a| a.phone_numbers.iter().any(|p| p.phone_hash == hash)) {
-            return Err(JiaodaiError::AccountNotFound("Phone number not registered".to_string()));
+        if !accounts
+            .iter()
+            .any(|a| a.phone_numbers.iter().any(|p| p.phone_hash == hash))
+        {
+            return Err(JiaodaiError::AccountNotFound(
+                "Phone number not registered".to_string(),
+            ));
         }
 
         let code = self.code_manager.generate_code(phone);
         let result = self.sms_provider.send_verification_code(phone, &code).await;
         if !result.success {
-            return Err(JiaodaiError::SerializationError(format!("SMS send failed: {}", result.message)));
+            return Err(JiaodaiError::SerializationError(format!(
+                "SMS send failed: {}",
+                result.message
+            )));
         }
 
         Ok(())
@@ -180,7 +206,9 @@ impl AccountService {
     /// Login with phone + verification code
     pub async fn login(&self, phone: &str, code: &str) -> Result<(Account, TokenPair)> {
         if !self.code_manager.verify_code(phone, code) {
-            return Err(JiaodaiError::SerializationError("Invalid or expired verification code".to_string()));
+            return Err(JiaodaiError::SerializationError(
+                "Invalid or expired verification code".to_string(),
+            ));
         }
 
         let hash = phone_hash(phone);
@@ -191,7 +219,9 @@ impl AccountService {
             .ok_or_else(|| JiaodaiError::AccountNotFound("Account not found".to_string()))?;
 
         if account.status != AccountStatus::Active {
-            return Err(JiaodaiError::AccountNotFound("Account is not active".to_string()));
+            return Err(JiaodaiError::AccountNotFound(
+                "Account is not active".to_string(),
+            ));
         }
 
         account.updated_at = Utc::now();
@@ -218,11 +248,15 @@ impl AccountService {
     /// Bind an additional phone number to an account
     pub async fn bind_phone(&self, account_id: &str, phone: &str, code: &str) -> Result<Account> {
         if !validate_phone_format(phone) {
-            return Err(JiaodaiError::SerializationError("Invalid phone number format".to_string()));
+            return Err(JiaodaiError::SerializationError(
+                "Invalid phone number format".to_string(),
+            ));
         }
 
         if !self.code_manager.verify_code(phone, code) {
-            return Err(JiaodaiError::SerializationError("Invalid or expired verification code".to_string()));
+            return Err(JiaodaiError::SerializationError(
+                "Invalid or expired verification code".to_string(),
+            ));
         }
 
         let hash = phone_hash(phone);
@@ -231,8 +265,13 @@ impl AccountService {
         // Check if phone is already bound to another account
         {
             let accounts = self.accounts.lock().unwrap();
-            if accounts.iter().any(|a| a.phone_numbers.iter().any(|p| p.phone_hash == hash)) {
-                return Err(JiaodaiError::SerializationError("Phone number already bound to another account".to_string()));
+            if accounts
+                .iter()
+                .any(|a| a.phone_numbers.iter().any(|p| p.phone_hash == hash))
+            {
+                return Err(JiaodaiError::SerializationError(
+                    "Phone number already bound to another account".to_string(),
+                ));
             }
         }
 
@@ -278,7 +317,9 @@ impl AccountService {
     ) -> Result<Account> {
         // Verify old phone
         if !self.code_manager.verify_code(old_phone, old_code) {
-            return Err(JiaodaiError::SerializationError("Old phone verification failed".to_string()));
+            return Err(JiaodaiError::SerializationError(
+                "Old phone verification failed".to_string(),
+            ));
         }
 
         let old_hash = phone_hash(old_phone);
@@ -291,8 +332,14 @@ impl AccountService {
                 .find(|a| a.id == account_id)
                 .ok_or_else(|| JiaodaiError::AccountNotFound(account_id.to_string()))?;
 
-            if !account.phone_numbers.iter().any(|p| p.phone_hash == old_hash) {
-                return Err(JiaodaiError::SerializationError("Old phone not bound to this account".to_string()));
+            if !account
+                .phone_numbers
+                .iter()
+                .any(|p| p.phone_hash == old_hash)
+            {
+                return Err(JiaodaiError::SerializationError(
+                    "Old phone not bound to this account".to_string(),
+                ));
             }
 
             account.phone_numbers.retain(|p| p.phone_hash != old_hash);
@@ -300,7 +347,9 @@ impl AccountService {
 
         // Verify new phone code
         if !self.code_manager.verify_code(new_phone, new_code) {
-            return Err(JiaodaiError::SerializationError("New phone verification failed".to_string()));
+            return Err(JiaodaiError::SerializationError(
+                "New phone verification failed".to_string(),
+            ));
         }
 
         // Check new phone not bound elsewhere, then bind
@@ -308,8 +357,13 @@ impl AccountService {
         let encrypted = phone_encrypt(new_phone, &self.phone_key);
 
         let mut accounts = self.accounts.lock().unwrap();
-        if accounts.iter().any(|a| a.id != account_id && a.phone_numbers.iter().any(|p| p.phone_hash == new_hash)) {
-            return Err(JiaodaiError::SerializationError("New phone already bound to another account".to_string()));
+        if accounts
+            .iter()
+            .any(|a| a.id != account_id && a.phone_numbers.iter().any(|p| p.phone_hash == new_hash))
+        {
+            return Err(JiaodaiError::SerializationError(
+                "New phone already bound to another account".to_string(),
+            ));
         }
 
         let account = accounts
@@ -350,7 +404,10 @@ impl AccountService {
         id_number: &str,
         face_image: &[u8],
     ) -> Result<IdentityVerificationResult> {
-        let result = self.identity_provider.verify_identity(name, id_number, face_image).await?;
+        let result = self
+            .identity_provider
+            .verify_identity(name, id_number, face_image)
+            .await?;
         Ok(result)
     }
 
@@ -363,7 +420,9 @@ impl AccountService {
         new_code: &str,
     ) -> Result<(Account, TokenPair)> {
         if !self.code_manager.verify_code(new_phone, new_code) {
-            return Err(JiaodaiError::SerializationError("Invalid verification code".to_string()));
+            return Err(JiaodaiError::SerializationError(
+                "Invalid verification code".to_string(),
+            ));
         }
 
         let mut accounts = self.accounts.lock().unwrap();
@@ -374,7 +433,9 @@ impl AccountService {
                     .as_ref()
                     .map_or(false, |id| id.id_number_hash == id_number_hash_val)
             })
-            .ok_or_else(|| JiaodaiError::AccountNotFound("No account found with this identity".to_string()))?;
+            .ok_or_else(|| {
+                JiaodaiError::AccountNotFound("No account found with this identity".to_string())
+            })?;
 
         // Bind new phone
         let new_hash = phone_hash(new_phone);
@@ -418,15 +479,20 @@ impl AccountService {
         let liveness = self.identity_provider.liveness_check(face_image).await?;
 
         if !liveness.is_live {
-            return Err(JiaodaiError::ViewerVerificationFailed("Liveness check failed".to_string()));
+            return Err(JiaodaiError::ViewerVerificationFailed(
+                "Liveness check failed".to_string(),
+            ));
         }
 
-        let verify = self.identity_provider
+        let verify = self
+            .identity_provider
             .verify_identity(&ocr.name, &ocr.id_number, face_image)
             .await?;
 
         if !verify.verified {
-            return Err(JiaodaiError::ViewerVerificationFailed("Identity verification failed".to_string()));
+            return Err(JiaodaiError::ViewerVerificationFailed(
+                "Identity verification failed".to_string(),
+            ));
         }
 
         let now = Utc::now();
@@ -475,27 +541,43 @@ impl AccountService {
         let accounts = self.accounts.lock().unwrap();
         accounts
             .iter()
-            .find(|a| a.phone_numbers.iter().any(|p| p.phone_hash == phone_hash_val))
+            .find(|a| {
+                a.phone_numbers
+                    .iter()
+                    .any(|p| p.phone_hash == phone_hash_val)
+            })
             .cloned()
-            .ok_or_else(|| JiaodaiError::AccountNotFound(format!("No account with phone hash {}", phone_hash_val)))
+            .ok_or_else(|| {
+                JiaodaiError::AccountNotFound(format!(
+                    "No account with phone hash {}",
+                    phone_hash_val
+                ))
+            })
     }
 
     /// Check if a phone number is already registered
     pub fn is_phone_registered(&self, phone: &str) -> bool {
         let hash = phone_hash(phone);
         let accounts = self.accounts.lock().unwrap();
-        accounts.iter().any(|a| a.phone_numbers.iter().any(|p| p.phone_hash == hash))
+        accounts
+            .iter()
+            .any(|a| a.phone_numbers.iter().any(|p| p.phone_hash == hash))
     }
 
     /// Send verification code (for any purpose: register, login, bind, etc.)
     pub async fn send_code(&self, phone: &str) -> Result<String> {
         if !validate_phone_format(phone) {
-            return Err(JiaodaiError::SerializationError("Invalid phone number format".to_string()));
+            return Err(JiaodaiError::SerializationError(
+                "Invalid phone number format".to_string(),
+            ));
         }
         let code = self.code_manager.generate_code(phone);
         let result = self.sms_provider.send_verification_code(phone, &code).await;
         if !result.success {
-            return Err(JiaodaiError::SerializationError(format!("SMS send failed: {}", result.message)));
+            return Err(JiaodaiError::SerializationError(format!(
+                "SMS send failed: {}",
+                result.message
+            )));
         }
         Ok(code)
     }
@@ -567,7 +649,10 @@ mod tests {
 
         let phone2 = "13800138004";
         let code2 = service.send_code(phone2).await.unwrap();
-        let updated = service.bind_phone(&account.id, phone2, &code2).await.unwrap();
+        let updated = service
+            .bind_phone(&account.id, phone2, &code2)
+            .await
+            .unwrap();
         assert_eq!(updated.phone_numbers.len(), 2);
     }
 
@@ -582,7 +667,10 @@ mod tests {
         let old_code = service.send_code(old_phone).await.unwrap();
         let new_code = service.send_code(new_phone).await.unwrap();
 
-        let updated = service.change_phone(&account.id, old_phone, &old_code, new_phone, &new_code).await.unwrap();
+        let updated = service
+            .change_phone(&account.id, old_phone, &old_code, new_phone, &new_code)
+            .await
+            .unwrap();
         assert_eq!(updated.phone_numbers.len(), 1);
         assert_eq!(updated.phone_numbers[0].phone_hash, phone_hash(new_phone));
     }
@@ -595,7 +683,10 @@ mod tests {
         let (_, tokens) = service.register(phone, &code).await.unwrap();
 
         let new_tokens = service.refresh_token(&tokens.refresh_token).unwrap();
-        let claims = service.jwt_manager.verify_access_token(&new_tokens.access_token).unwrap();
+        let claims = service
+            .jwt_manager
+            .verify_access_token(&new_tokens.access_token)
+            .unwrap();
         // Verify the account exists
         assert!(service.get_account(&claims.sub).is_ok());
     }
@@ -607,7 +698,10 @@ mod tests {
         let code = service.send_code(phone).await.unwrap();
         let (account, _) = service.register(phone, &code).await.unwrap();
 
-        let updated = service.complete_identity_verification(&account.id, &[], &[]).await.unwrap();
+        let updated = service
+            .complete_identity_verification(&account.id, &[], &[])
+            .await
+            .unwrap();
         assert!(updated.identity.is_some());
         assert!(updated.identity.unwrap().verified);
     }

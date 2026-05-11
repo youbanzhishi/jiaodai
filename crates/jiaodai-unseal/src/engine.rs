@@ -6,8 +6,8 @@
 use async_trait::async_trait;
 use chrono::Utc;
 use jiaodai_core::{
-    ConditionState, IdentityClaim, JiaodaiError, LogicOp, Result, Tape, TapeStatus,
-    TriggerCondition, TriggerContext, TriggerChecker, UnsealEngine,
+    ConditionState, IdentityClaim, JiaodaiError, LogicOp, Result, Tape, TapeStatus, TriggerChecker,
+    TriggerCondition, TriggerContext, UnsealEngine,
 };
 
 use crate::checkers::{DateChecker, HeartbeatChecker, MultiConfirmerChecker};
@@ -48,7 +48,10 @@ impl DefaultUnsealEngine {
         registry.register(std::sync::Arc::new(DateChecker {
             open_at: chrono::DateTime::<chrono::Utc>::MAX_UTC,
         }));
-        registry.register(std::sync::Arc::new(MultiConfirmerChecker { threshold: 2, total: 3 }));
+        registry.register(std::sync::Arc::new(MultiConfirmerChecker {
+            threshold: 2,
+            total: 3,
+        }));
 
         Self {
             config: UnsealConfig::default(),
@@ -93,7 +96,10 @@ impl DefaultUnsealEngine {
     /// Get a tape's status from the in-memory store
     pub fn get_tape_status(&self, tape_id: &str) -> Option<TapeStatus> {
         let statuses = self.tape_statuses.lock().unwrap();
-        statuses.iter().find(|(id, _)| id == tape_id).map(|(_, s)| s.clone())
+        statuses
+            .iter()
+            .find(|(id, _)| id == tape_id)
+            .map(|(_, s)| s.clone())
     }
 
     /// Check a trigger condition against a context
@@ -105,7 +111,9 @@ impl DefaultUnsealEngine {
         let condition_type = condition.condition_type();
         let result = match condition {
             TriggerCondition::Heartbeat { timeout_days, .. } => {
-                let checker = HeartbeatChecker { timeout_days: *timeout_days };
+                let checker = HeartbeatChecker {
+                    timeout_days: *timeout_days,
+                };
                 checker.check(context).await
             }
             TriggerCondition::MutualMatch { .. } => {
@@ -118,7 +126,10 @@ impl DefaultUnsealEngine {
             }
             TriggerCondition::MultiConfirm { threshold, .. } => {
                 let total = context.total_confirmers.unwrap_or(0);
-                let checker = MultiConfirmerChecker { threshold: *threshold, total };
+                let checker = MultiConfirmerChecker {
+                    threshold: *threshold,
+                    total,
+                };
                 checker.check(context).await
             }
             TriggerCondition::Composite { conditions, logic } => {
@@ -150,7 +161,9 @@ impl DefaultUnsealEngine {
     ) -> ConditionState {
         match condition {
             TriggerCondition::Heartbeat { timeout_days, .. } => {
-                let checker = HeartbeatChecker { timeout_days: *timeout_days };
+                let checker = HeartbeatChecker {
+                    timeout_days: *timeout_days,
+                };
                 checker.check(context).await
             }
             TriggerCondition::MutualMatch { .. } => ConditionState::Pending,
@@ -160,7 +173,10 @@ impl DefaultUnsealEngine {
             }
             TriggerCondition::MultiConfirm { threshold, .. } => {
                 let total = context.total_confirmers.unwrap_or(0);
-                let checker = MultiConfirmerChecker { threshold: *threshold, total };
+                let checker = MultiConfirmerChecker {
+                    threshold: *threshold,
+                    total,
+                };
                 checker.check(context).await
             }
             TriggerCondition::Composite { .. } => {
@@ -176,7 +192,10 @@ impl DefaultUnsealEngine {
             LogicOp::And => {
                 if results.iter().all(|r| *r == ConditionState::Satisfied) {
                     ConditionState::Satisfied
-                } else if results.iter().any(|r| matches!(r, ConditionState::Failed(_))) {
+                } else if results
+                    .iter()
+                    .any(|r| matches!(r, ConditionState::Failed(_)))
+                {
                     ConditionState::Failed("AND condition failed".to_string())
                 } else {
                     ConditionState::Partial
@@ -196,7 +215,8 @@ impl DefaultUnsealEngine {
 
     /// Attempt a status transition and broadcast event
     pub fn try_transition(&self, tape_id: &str, target: TapeStatus) -> Result<TapeStatus> {
-        let current = self.get_tape_status(tape_id)
+        let current = self
+            .get_tape_status(tape_id)
             .ok_or_else(|| JiaodaiError::TapeNotFound(tape_id.to_string()))?;
 
         let new_status = transition_status(&current, target)?;
@@ -211,7 +231,8 @@ impl DefaultUnsealEngine {
         // Special events for specific transitions
         match &new_status {
             TapeStatus::Grace => {
-                let grace_until = Utc::now() + chrono::Duration::days(self.config.grace_period_days as i64);
+                let grace_until =
+                    Utc::now() + chrono::Duration::days(self.config.grace_period_days as i64);
                 self.event_bus.broadcast(&UnsealEvent::GracePeriodStarted {
                     tape_id: tape_id.to_string(),
                     grace_until,
@@ -245,19 +266,23 @@ impl UnsealEngine for DefaultUnsealEngine {
         let status = self.get_tape_status(tape_id);
         match status {
             Some(TapeStatus::Unsealed) => Ok(ConditionState::Satisfied),
-            Some(TapeStatus::Archived) => Ok(ConditionState::Failed("Tape is archived".to_string())),
+            Some(TapeStatus::Archived) => {
+                Ok(ConditionState::Failed("Tape is archived".to_string()))
+            }
             _ => Ok(ConditionState::Pending),
         }
     }
 
     async fn unseal(&self, tape_id: &str, _claim: &IdentityClaim) -> Result<Tape> {
-        let status = self.get_tape_status(tape_id)
+        let status = self
+            .get_tape_status(tape_id)
             .ok_or_else(|| JiaodaiError::TapeNotFound(tape_id.to_string()))?;
 
         if status != TapeStatus::Triggered && status != TapeStatus::Grace {
-            return Err(JiaodaiError::ConditionNotMet(
-                format!("Tape is in {:?} status, cannot unseal", status)
-            ));
+            return Err(JiaodaiError::ConditionNotMet(format!(
+                "Tape is in {:?} status, cannot unseal",
+                status
+            )));
         }
 
         // Perform the transition
@@ -357,8 +382,13 @@ mod tests {
         // Both satisfied
         let condition = TriggerCondition::Composite {
             conditions: vec![
-                TriggerCondition::DateTrigger { open_at: Utc::now() - chrono::Duration::days(1) },
-                TriggerCondition::MultiConfirm { threshold: 2, confirmers: vec![] },
+                TriggerCondition::DateTrigger {
+                    open_at: Utc::now() - chrono::Duration::days(1),
+                },
+                TriggerCondition::MultiConfirm {
+                    threshold: 2,
+                    confirmers: vec![],
+                },
             ],
             logic: LogicOp::And,
         };
@@ -368,8 +398,13 @@ mod tests {
         // One pending
         let condition = TriggerCondition::Composite {
             conditions: vec![
-                TriggerCondition::DateTrigger { open_at: Utc::now() + chrono::Duration::days(1) },
-                TriggerCondition::MultiConfirm { threshold: 2, confirmers: vec![] },
+                TriggerCondition::DateTrigger {
+                    open_at: Utc::now() + chrono::Duration::days(1),
+                },
+                TriggerCondition::MultiConfirm {
+                    threshold: 2,
+                    confirmers: vec![],
+                },
             ],
             logic: LogicOp::And,
         };
@@ -390,8 +425,13 @@ mod tests {
 
         let condition = TriggerCondition::Composite {
             conditions: vec![
-                TriggerCondition::DateTrigger { open_at: Utc::now() - chrono::Duration::days(1) },
-                TriggerCondition::MultiConfirm { threshold: 2, confirmers: vec![] },
+                TriggerCondition::DateTrigger {
+                    open_at: Utc::now() - chrono::Duration::days(1),
+                },
+                TriggerCondition::MultiConfirm {
+                    threshold: 2,
+                    confirmers: vec![],
+                },
             ],
             logic: LogicOp::Or,
         };
@@ -420,9 +460,13 @@ mod tests {
         let engine = DefaultUnsealEngine::new();
         engine.set_tape_status("tape-1", TapeStatus::Draft);
         engine.try_transition("tape-1", TapeStatus::Sealed).unwrap();
-        engine.try_transition("tape-1", TapeStatus::Triggered).unwrap();
+        engine
+            .try_transition("tape-1", TapeStatus::Triggered)
+            .unwrap();
         engine.try_transition("tape-1", TapeStatus::Grace).unwrap();
-        engine.try_transition("tape-1", TapeStatus::Unsealed).unwrap();
+        engine
+            .try_transition("tape-1", TapeStatus::Unsealed)
+            .unwrap();
         assert_eq!(engine.get_tape_status("tape-1"), Some(TapeStatus::Unsealed));
     }
 }

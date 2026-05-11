@@ -7,9 +7,9 @@
 //! - **TriggerCondition**: Rules for when content can be unsealed (解封条件)
 //! - **Viewer**: Who can view the content after unsealing (查看人)
 
+mod error;
 mod models;
 mod traits;
-mod error;
 
 pub use error::{JiaodaiError, Result};
 pub use models::*;

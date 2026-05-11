@@ -209,7 +209,13 @@ fn gf256_inv(a: u8) -> u8 {
     let a64 = gf256_mul(a32, a32);
     let a128 = gf256_mul(a64, a64);
 
-    gf256_mul(a2, gf256_mul(a4, gf256_mul(a8, gf256_mul(a16, gf256_mul(a32, gf256_mul(a64, a128))))))
+    gf256_mul(
+        a2,
+        gf256_mul(
+            a4,
+            gf256_mul(a8, gf256_mul(a16, gf256_mul(a32, gf256_mul(a64, a128)))),
+        ),
+    )
 }
 
 // ─── Vault File Reference ─────────────────────────────────────
@@ -311,14 +317,20 @@ impl VaultConnector for MemoryVaultConnector {
         let hash = hasher.finalize();
         let hash_hex: String = hash.iter().map(|b| format!("{:02x}", b)).collect();
 
-        self.files.lock().unwrap().insert(file_id.to_string(), data.to_vec());
-        self.metadata.lock().unwrap().insert(file_id.to_string(), VaultFileMetadata {
-            file_id: file_id.to_string(),
-            size: data.len() as u64,
-            content_hash: hash_hex.clone(),
-            created_at: Utc::now(),
-            content_type: "application/octet-stream".to_string(),
-        });
+        self.files
+            .lock()
+            .unwrap()
+            .insert(file_id.to_string(), data.to_vec());
+        self.metadata.lock().unwrap().insert(
+            file_id.to_string(),
+            VaultFileMetadata {
+                file_id: file_id.to_string(),
+                size: data.len() as u64,
+                content_hash: hash_hex.clone(),
+                created_at: Utc::now(),
+                content_type: "application/octet-stream".to_string(),
+            },
+        );
 
         Ok(hash_hex)
     }
@@ -430,7 +442,8 @@ mod tests {
         assert_eq!(reconstructed, secret.to_vec());
 
         // Reconstruct with different subset
-        let reconstructed2 = shamir_reconstruct(&[shares[0].clone(), shares[2].clone(), shares[4].clone()]).unwrap();
+        let reconstructed2 =
+            shamir_reconstruct(&[shares[0].clone(), shares[2].clone(), shares[4].clone()]).unwrap();
         assert_eq!(reconstructed2, secret.to_vec());
 
         // Reconstruct with all shares
@@ -514,7 +527,11 @@ mod tests {
         for a in [1u8, 2, 3, 0x57, 0x83, 0xFF] {
             let inv = gf256_inv(a);
             let product = gf256_mul(a, inv);
-            assert_eq!(product, 1, "GF(256) inv failed for {}: a*inv = {}", a, product);
+            assert_eq!(
+                product, 1,
+                "GF(256) inv failed for {}: a*inv = {}",
+                a, product
+            );
         }
     }
 
@@ -567,16 +584,13 @@ mod tests {
 
     #[test]
     fn test_create_vault_ref() {
-        let holders = vec!["holder-1".to_string(), "holder-2".to_string(), "holder-3".to_string()];
-        let file_ref = create_vault_ref(
-            "tape-1",
-            "vault-file-1",
-            1024,
-            "abc123",
-            2,
-            3,
-            &holders,
-        ).unwrap();
+        let holders = vec![
+            "holder-1".to_string(),
+            "holder-2".to_string(),
+            "holder-3".to_string(),
+        ];
+        let file_ref =
+            create_vault_ref("tape-1", "vault-file-1", 1024, "abc123", 2, 3, &holders).unwrap();
 
         assert_eq!(file_ref.tape_id, "tape-1");
         assert_eq!(file_ref.vault_file_id, "vault-file-1");
@@ -598,9 +612,15 @@ mod tests {
         vault.store("vf-1", encrypted_data).unwrap();
 
         let file_ref = create_vault_ref(
-            "tape-1", "vf-1", 25, "hash", 2, 3,
+            "tape-1",
+            "vf-1",
+            25,
+            "hash",
+            2,
+            3,
             &["h1".to_string(), "h2".to_string(), "h3".to_string()],
-        ).unwrap();
+        )
+        .unwrap();
 
         let secret = b"my-aes-key-for-vault-file-xxxxx";
         let shares = shamir_split(secret, 2, 3).unwrap();

@@ -24,10 +24,7 @@ pub enum SealEvent {
         at: DateTime<Utc>,
     },
     /// A seal certificate was generated
-    CertificateGenerated {
-        tape_id: String,
-        at: DateTime<Utc>,
-    },
+    CertificateGenerated { tape_id: String, at: DateTime<Utc> },
     /// A seal certificate was shared (short link / QR code placeholder)
     CertificateShared {
         tape_id: String,

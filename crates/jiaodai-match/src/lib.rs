@@ -13,4 +13,4 @@ mod search;
 pub use engine::*;
 pub use passive::*;
 // Re-export specific items from search to avoid ambiguous glob
-pub use search::{PhoneSearchService, phone_hash, SearchResult};
+pub use search::{phone_hash, PhoneSearchService, SearchResult};

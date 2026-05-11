@@ -39,15 +39,15 @@ impl TapeStatus {
         matches!(
             (self, target),
             (TapeStatus::Draft, TapeStatus::Sealed)
-            | (TapeStatus::Sealed, TapeStatus::Partial)
-            | (TapeStatus::Sealed, TapeStatus::Triggered)
-            | (TapeStatus::Partial, TapeStatus::Sealed)
-            | (TapeStatus::Triggered, TapeStatus::Grace)
-            | (TapeStatus::Triggered, TapeStatus::Unsealed)
-            | (TapeStatus::Grace, TapeStatus::Unsealed)
-            | (TapeStatus::Grace, TapeStatus::Sealed)
-            | (TapeStatus::Unsealed, TapeStatus::Archived)
-            | (TapeStatus::Sealed, TapeStatus::Archived)
+                | (TapeStatus::Sealed, TapeStatus::Partial)
+                | (TapeStatus::Sealed, TapeStatus::Triggered)
+                | (TapeStatus::Partial, TapeStatus::Sealed)
+                | (TapeStatus::Triggered, TapeStatus::Grace)
+                | (TapeStatus::Triggered, TapeStatus::Unsealed)
+                | (TapeStatus::Grace, TapeStatus::Unsealed)
+                | (TapeStatus::Grace, TapeStatus::Sealed)
+                | (TapeStatus::Unsealed, TapeStatus::Archived)
+                | (TapeStatus::Sealed, TapeStatus::Archived)
         )
     }
 }
@@ -140,7 +140,6 @@ pub struct Confirmer {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
 #[serde(rename_all = "snake_case")]
 pub enum ConditionType {
-
     Heartbeat,
     MutualMatch,
     DateTrigger,
@@ -158,13 +157,9 @@ pub enum TriggerCondition {
         confirmers: Vec<Confirmer>,
     },
     /// Mutual match: both A→B and B→A have sealed tapes
-    MutualMatch {
-        target_account_id: String,
-    },
+    MutualMatch { target_account_id: String },
     /// Date trigger: open at a specific date/time
-    DateTrigger {
-        open_at: DateTime<Utc>,
-    },
+    DateTrigger { open_at: DateTime<Utc> },
     /// Multi-person confirmation: M of N confirmers must agree
     MultiConfirm {
         threshold: u32,

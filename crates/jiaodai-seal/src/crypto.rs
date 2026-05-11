@@ -1,7 +1,7 @@
 //! Cryptographic operations: AES-256-GCM encryption and SHA-256 hashing
 
 use aes_gcm::aead::{Aead, KeyInit, OsRng};
-use aes_gcm::{Aes256Gcm, AeadCore, Nonce};
+use aes_gcm::{AeadCore, Aes256Gcm, Nonce};
 use sha2::{Digest, Sha256};
 
 use jiaodai_core::{EncryptedContent, JiaodaiError, Result};

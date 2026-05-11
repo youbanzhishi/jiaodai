@@ -54,9 +54,17 @@ impl MerkleTree {
             current = next;
         }
 
-        let root = layers.last().and_then(|l| l.first()).copied().unwrap_or([0u8; 32]);
+        let root = layers
+            .last()
+            .and_then(|l| l.first())
+            .copied()
+            .unwrap_or([0u8; 32]);
 
-        Self { leaves, root, layers }
+        Self {
+            leaves,
+            root,
+            layers,
+        }
     }
 
     /// Get the Merkle root
@@ -299,11 +307,7 @@ mod tests {
         let tree = MerkleTree::new(leaves);
         let proof = tree.proof(1).unwrap();
 
-        assert!(verify_merkle_proof(
-            &proof.leaf,
-            &proof.path,
-            &proof.root
-        ));
+        assert!(verify_merkle_proof(&proof.leaf, &proof.path, &proof.root));
     }
 
     #[test]

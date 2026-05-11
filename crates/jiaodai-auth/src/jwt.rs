@@ -55,8 +55,8 @@ impl Default for JwtConfig {
     fn default() -> Self {
         Self {
             secret: "jiaodai-dev-secret-change-in-production".to_string(),
-            access_duration_secs: 3600,       // 1 hour
-            refresh_duration_secs: 2592000,    // 30 days
+            access_duration_secs: 3600,     // 1 hour
+            refresh_duration_secs: 2592000, // 30 days
             issuer: "jiaodai".to_string(),
         }
     }
@@ -80,8 +80,10 @@ impl JwtManager {
 
     /// Generate a token pair (access + refresh) for the given account
     pub fn generate_token_pair(&self, account_id: &str) -> TokenPair {
-        let access_token = self.generate_token(account_id, "access", self.config.access_duration_secs);
-        let refresh_token = self.generate_token(account_id, "refresh", self.config.refresh_duration_secs);
+        let access_token =
+            self.generate_token(account_id, "access", self.config.access_duration_secs);
+        let refresh_token =
+            self.generate_token(account_id, "refresh", self.config.refresh_duration_secs);
 
         TokenPair {
             access_token,
@@ -124,13 +126,17 @@ impl JwtManager {
     fn verify_token(&self, token: &str, expected_type: &str) -> Result<TokenClaims, JiaodaiError> {
         let parts: Vec<&str> = token.split('.').collect();
         if parts.len() != 3 {
-            return Err(JiaodaiError::SerializationError("Invalid JWT format".to_string()));
+            return Err(JiaodaiError::SerializationError(
+                "Invalid JWT format".to_string(),
+            ));
         }
 
         let signing_input = format!("{}.{}", parts[0], parts[1]);
         let expected_sig = self.sign(&signing_input);
         if parts[2] != expected_sig {
-            return Err(JiaodaiError::SerializationError("Invalid JWT signature".to_string()));
+            return Err(JiaodaiError::SerializationError(
+                "Invalid JWT signature".to_string(),
+            ));
         }
 
         let payload_bytes = base64_url_decode(parts[1])
@@ -141,14 +147,17 @@ impl JwtManager {
             .map_err(|e| JiaodaiError::SerializationError(format!("Invalid JWT claims: {}", e)))?;
 
         if claims.token_type != expected_type {
-            return Err(JiaodaiError::SerializationError(
-                format!("Expected {} token, got {}", expected_type, claims.token_type)
-            ));
+            return Err(JiaodaiError::SerializationError(format!(
+                "Expected {} token, got {}",
+                expected_type, claims.token_type
+            )));
         }
 
         let now = Utc::now().timestamp();
         if claims.exp < now {
-            return Err(JiaodaiError::SerializationError("Token expired".to_string()));
+            return Err(JiaodaiError::SerializationError(
+                "Token expired".to_string(),
+            ));
         }
 
         Ok(claims)
@@ -178,8 +187,16 @@ fn base64_url_encode(data: &[u8]) -> String {
     let mut i = 0;
     while i < data.len() {
         let b0 = data[i] as u32;
-        let b1 = if i + 1 < data.len() { data[i + 1] as u32 } else { 0 };
-        let b2 = if i + 2 < data.len() { data[i + 2] as u32 } else { 0 };
+        let b1 = if i + 1 < data.len() {
+            data[i + 1] as u32
+        } else {
+            0
+        };
+        let b2 = if i + 2 < data.len() {
+            data[i + 2] as u32
+        } else {
+            0
+        };
 
         result.push(CHARSET[((b0 >> 2) & 0x3F) as usize] as char);
         result.push(CHARSET[(((b0 << 4) | (b1 >> 4)) & 0x3F) as usize] as char);
@@ -205,7 +222,9 @@ fn base64_url_decode(input: &str) -> Result<Vec<u8>, String> {
     let mut bits = 0;
 
     for c in input.chars() {
-        let val = CHARSET.find(c).ok_or_else(|| format!("Invalid base64 character: {}", c))?;
+        let val = CHARSET
+            .find(c)
+            .ok_or_else(|| format!("Invalid base64 character: {}", c))?;
         buffer = (buffer << 6) | val as u32;
         bits += 6;
         if bits >= 8 {

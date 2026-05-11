@@ -188,7 +188,11 @@ impl CapsuleScene {
     /// Get all capsules for a creator
     pub fn get_creator_capsules(&self, creator_id: &str) -> Vec<CapsuleRecord> {
         let capsules = self.capsules.lock().unwrap();
-        capsules.iter().filter(|c| c.creator_id == creator_id).cloned().collect()
+        capsules
+            .iter()
+            .filter(|c| c.creator_id == creator_id)
+            .cloned()
+            .collect()
     }
 }
 
@@ -224,7 +228,11 @@ mod tests {
     fn test_create_self_capsule() {
         let scene = CapsuleScene::new();
         let capsule = scene
-            .create_self_capsule("account-1", Utc::now() + chrono::Duration::days(365), "Asia/Shanghai")
+            .create_self_capsule(
+                "account-1",
+                Utc::now() + chrono::Duration::days(365),
+                "Asia/Shanghai",
+            )
             .unwrap();
         assert_eq!(capsule.viewers.len(), 1);
         assert_eq!(capsule.viewers[0].viewer_type, CapsuleViewerType::Self_);
@@ -234,7 +242,11 @@ mod tests {
     fn test_countdown() {
         let scene = CapsuleScene::new();
         let capsule = scene
-            .create_self_capsule("account-1", Utc::now() + chrono::Duration::days(365), "Asia/Shanghai")
+            .create_self_capsule(
+                "account-1",
+                Utc::now() + chrono::Duration::days(365),
+                "Asia/Shanghai",
+            )
             .unwrap();
         let countdown = scene.get_countdown(&capsule.tape_id);
         assert!(countdown.is_some());
@@ -244,7 +256,13 @@ mod tests {
     #[test]
     fn test_check_and_open_future() {
         let scene = CapsuleScene::new();
-        scene.create_self_capsule("account-1", Utc::now() + chrono::Duration::days(365), "Asia/Shanghai").unwrap();
+        scene
+            .create_self_capsule(
+                "account-1",
+                Utc::now() + chrono::Duration::days(365),
+                "Asia/Shanghai",
+            )
+            .unwrap();
         let opened = scene.check_and_open();
         assert!(opened.is_empty());
     }
@@ -252,7 +270,13 @@ mod tests {
     #[test]
     fn test_check_and_open_past() {
         let scene = CapsuleScene::new();
-        scene.create_self_capsule("account-1", Utc::now() - chrono::Duration::days(1), "Asia/Shanghai").unwrap();
+        scene
+            .create_self_capsule(
+                "account-1",
+                Utc::now() - chrono::Duration::days(1),
+                "Asia/Shanghai",
+            )
+            .unwrap();
         let opened = scene.check_and_open();
         assert_eq!(opened.len(), 1);
         assert_eq!(opened[0].status, CapsuleStatus::Opened);

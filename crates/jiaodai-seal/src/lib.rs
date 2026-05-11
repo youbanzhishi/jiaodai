@@ -12,20 +12,20 @@
 //! - OpenLink Identity Card + short link sharing
 //! - OpenVault integration (file references + Shamir SSS)
 
-mod engine;
-mod crypto;
-mod shamir;
-mod hash_store;
 pub mod certificate;
+mod crypto;
+mod engine;
 mod event;
+mod hash_store;
 pub mod openlink;
+mod shamir;
 pub mod vault;
 
+pub use certificate::*;
 pub use crypto::*;
 pub use engine::*;
-pub use shamir::*;
-pub use hash_store::*;
-pub use certificate::*;
 pub use event::*;
+pub use hash_store::*;
 pub use openlink::*;
+pub use shamir::*;
 pub use vault::*;

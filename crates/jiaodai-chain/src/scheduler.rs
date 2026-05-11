@@ -149,17 +149,15 @@ impl BatchScheduler {
 
             if has_pending {
                 if let Some(last_time) = *last {
-                    let elapsed = Utc::now()
-                        .signed_duration_since(last_time)
-                        .num_seconds();
+                    let elapsed = Utc::now().signed_duration_since(last_time).num_seconds();
                     if elapsed >= self.config.auto_submit_interval_secs as i64 {
                         return true;
                     }
                 } else {
                     // Never submitted yet — check if we have enough
-                    return batches
-                        .iter()
-                        .any(|b| !b.submitted && b.content_hashes.len() >= self.config.min_batch_size);
+                    return batches.iter().any(|b| {
+                        !b.submitted && b.content_hashes.len() >= self.config.min_batch_size
+                    });
                 }
             }
         }
@@ -171,7 +169,10 @@ impl BatchScheduler {
     ///
     /// Builds a Merkle tree from all hashes in the batch,
     /// submits the root on-chain.
-    pub fn submit_batch(&self, chain_engine: &MockChainEngine) -> Result<Vec<BlockchainAttestation>> {
+    pub fn submit_batch(
+        &self,
+        chain_engine: &MockChainEngine,
+    ) -> Result<Vec<BlockchainAttestation>> {
         let mut batches = self.batches.lock().unwrap();
 
         let batch = batches
@@ -236,9 +237,7 @@ impl BatchScheduler {
                 Ok(atts) => {
                     all_attestations.extend(atts);
                 }
-                Err(JiaodaiError::SerializationError(msg))
-                    if msg.contains("No pending batch") =>
-                {
+                Err(JiaodaiError::SerializationError(msg)) if msg.contains("No pending batch") => {
                     break;
                 }
                 Err(e) => return Err(e),

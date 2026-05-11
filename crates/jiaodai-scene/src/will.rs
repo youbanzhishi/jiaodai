@@ -164,7 +164,11 @@ impl WillScene {
     /// Get all wills for a creator
     pub fn get_creator_wills(&self, creator_id: &str) -> Vec<WillRecord> {
         let wills = self.wills.lock().unwrap();
-        wills.iter().filter(|w| w.creator_id == creator_id).cloned().collect()
+        wills
+            .iter()
+            .filter(|w| w.creator_id == creator_id)
+            .cloned()
+            .collect()
     }
 }
 
@@ -217,20 +221,24 @@ mod tests {
     #[test]
     fn test_get_creator_wills() {
         let scene = WillScene::new();
-        scene.create_will(WillRequest {
-            creator_id: "account-1".to_string(),
-            heartbeat_interval_days: 30,
-            grace_period_days: 7,
-            viewers: vec![],
-            content_preview: None,
-        }).unwrap();
-        scene.create_will(WillRequest {
-            creator_id: "account-1".to_string(),
-            heartbeat_interval_days: 90,
-            grace_period_days: 14,
-            viewers: vec![],
-            content_preview: None,
-        }).unwrap();
+        scene
+            .create_will(WillRequest {
+                creator_id: "account-1".to_string(),
+                heartbeat_interval_days: 30,
+                grace_period_days: 7,
+                viewers: vec![],
+                content_preview: None,
+            })
+            .unwrap();
+        scene
+            .create_will(WillRequest {
+                creator_id: "account-1".to_string(),
+                heartbeat_interval_days: 90,
+                grace_period_days: 14,
+                viewers: vec![],
+                content_preview: None,
+            })
+            .unwrap();
 
         let wills = scene.get_creator_wills("account-1");
         assert_eq!(wills.len(), 2);

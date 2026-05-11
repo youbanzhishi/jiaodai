@@ -10,11 +10,11 @@
 //! - TriggerRegistry: extensible condition registration
 //! - UnsealEventBus: event-driven notifications
 
-mod engine;
 mod checkers;
-mod state_machine;
+mod engine;
 mod event;
 mod registry;
+mod state_machine;
 
 pub use checkers::*;
 pub use engine::*;

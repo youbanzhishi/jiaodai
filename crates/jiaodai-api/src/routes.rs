@@ -16,10 +16,10 @@
 //! - Phase 12: Agent Action Protocol
 
 use axum::{
+    extract::{ws::Message, Path, State, WebSocketUpgrade},
+    response::IntoResponse,
     routing::{get, post},
     Json, Router,
-    extract::{Path, State, WebSocketUpgrade, ws::Message},
-    response::IntoResponse,
 };
 use serde::Deserialize;
 use serde_json::{json, Value};
@@ -65,9 +65,18 @@ pub fn app(state: AppState) -> Router {
         .route("/api/v1/chain/submit", post(chain_batch_submit))
         .route("/api/v1/chain/verify/{tape_id}", get(chain_verify))
         // Phase 9: OpenLink
-        .route("/api/v1/openlink/identity-card/{tape_id}", get(openlink_identity_card))
-        .route("/api/v1/openlink/short-link/{tape_id}", get(openlink_short_link))
-        .route("/api/v1/openlink/short-link/{short_code}/access", post(openlink_access))
+        .route(
+            "/api/v1/openlink/identity-card/{tape_id}",
+            get(openlink_identity_card),
+        )
+        .route(
+            "/api/v1/openlink/short-link/{tape_id}",
+            get(openlink_short_link),
+        )
+        .route(
+            "/api/v1/openlink/short-link/{short_code}/access",
+            post(openlink_access),
+        )
         .route("/api/v1/openlink/verify/{tape_id}", post(openlink_verify))
         // Phase 10: OpenVault
         .route("/api/v1/vault/ref", post(vault_create_ref))
@@ -538,7 +547,9 @@ async fn vault_retrieve(
 async fn ws_notifications(ws: WebSocketUpgrade) -> impl IntoResponse {
     ws.on_upgrade(|mut socket| async move {
         // Send a welcome message
-        let _ = socket.send(Message::Text("Connected to Jiaodai notifications".into())).await;
+        let _ = socket
+            .send(Message::Text("Connected to Jiaodai notifications".into()))
+            .await;
         // In production, this would subscribe to the event bus and forward events
     })
 }
@@ -751,7 +762,12 @@ mod tests {
     async fn test_health_endpoint() {
         let app = app(AppState::new());
         let response = app
-            .oneshot(Request::builder().uri("/api/v1/health").body(Body::empty()).unwrap())
+            .oneshot(
+                Request::builder()
+                    .uri("/api/v1/health")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
             .await
             .unwrap();
         assert_eq!(response.status(), StatusCode::OK);

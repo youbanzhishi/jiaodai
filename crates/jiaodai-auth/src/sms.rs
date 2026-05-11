@@ -98,7 +98,10 @@ impl VerificationCodeManager {
 
     /// Generate and store a verification code for a phone number
     pub fn generate_code(&self, phone: &str) -> String {
-        let code = format!("{:06}", rand::Rng::gen_range(&mut rand::thread_rng(), 0..1000000));
+        let code = format!(
+            "{:06}",
+            rand::Rng::gen_range(&mut rand::thread_rng(), 0..1000000)
+        );
         let expires_at = chrono::Utc::now() + chrono::Duration::minutes(5);
         let mut codes = self.codes.lock().unwrap();
         // Remove any existing code for this phone
@@ -111,7 +114,10 @@ impl VerificationCodeManager {
     pub fn verify_code(&self, phone: &str, code: &str) -> bool {
         let mut codes = self.codes.lock().unwrap();
         let now = chrono::Utc::now();
-        if let Some(pos) = codes.iter().position(|(p, c, exp)| p == phone && c == code && exp > &now) {
+        if let Some(pos) = codes
+            .iter()
+            .position(|(p, c, exp)| p == phone && c == code && exp > &now)
+        {
             codes.remove(pos);
             true
         } else {
@@ -133,14 +139,18 @@ mod tests {
     #[tokio::test]
     async fn test_mock_sms_send_code() {
         let provider = MockSmsProvider;
-        let result = provider.send_verification_code("13800138000", "123456").await;
+        let result = provider
+            .send_verification_code("13800138000", "123456")
+            .await;
         assert!(result.success);
     }
 
     #[tokio::test]
     async fn test_mock_sms_send_invitation() {
         let provider = MockSmsProvider;
-        let result = provider.send_invitation("13800138000", "Someone has a message for you").await;
+        let result = provider
+            .send_invitation("13800138000", "Someone has a message for you")
+            .await;
         assert!(result.success);
     }
 

@@ -74,7 +74,10 @@ impl SharedTriggerRegistry {
     }
 
     /// Get a checker by condition type
-    pub fn get(&self, condition_type: &ConditionType) -> Option<std::sync::Arc<dyn TriggerChecker>> {
+    pub fn get(
+        &self,
+        condition_type: &ConditionType,
+    ) -> Option<std::sync::Arc<dyn TriggerChecker>> {
         self.checkers.lock().unwrap().get(condition_type).cloned()
     }
 
@@ -107,7 +110,10 @@ mod tests {
         registry.register(std::sync::Arc::new(DateChecker {
             open_at: chrono::Utc::now() + chrono::Duration::days(365),
         }));
-        registry.register(std::sync::Arc::new(MultiConfirmerChecker { threshold: 2, total: 3 }));
+        registry.register(std::sync::Arc::new(MultiConfirmerChecker {
+            threshold: 2,
+            total: 3,
+        }));
 
         assert!(registry.has(&ConditionType::Heartbeat));
         assert!(registry.has(&ConditionType::DateTrigger));

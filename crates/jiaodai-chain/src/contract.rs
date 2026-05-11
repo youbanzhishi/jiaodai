@@ -3,8 +3,6 @@
 //! Defines the TimestampRegistry Solidity contract and ABI
 //! for on-chain timestamp proofs.
 
-
-
 /// TimestampRegistry Solidity contract source code
 pub const TIMESTAMP_REGISTRY_SOL: &str = r#"
 // SPDX-License-Identifier: MIT

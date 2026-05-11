@@ -5,7 +5,7 @@ use chrono::Utc;
 
 use jiaodai_core::{
     ConditionState, ConditionType, IdentityClaim, JiaodaiError, Result, TriggerChecker,
-    TriggerContext, ViewerVerifier, ViewerType,
+    TriggerContext, ViewerType, ViewerVerifier,
 };
 
 /// Checks heartbeat-based trigger conditions
@@ -181,7 +181,10 @@ mod tests {
 
     #[tokio::test]
     async fn test_multi_confirmer_partial() {
-        let checker = MultiConfirmerChecker { threshold: 3, total: 5 };
+        let checker = MultiConfirmerChecker {
+            threshold: 3,
+            total: 5,
+        };
         let ctx = TriggerContext {
             tape_id: "test".to_string(),
             current_time: Utc::now(),
@@ -194,9 +197,15 @@ mod tests {
 
     #[tokio::test]
     async fn test_account_viewer_verifier() {
-        let verifier = AccountViewerVerifier { account_id: "user-123".to_string() };
-        let valid = IdentityClaim::Account { account_id: "user-123".to_string() };
-        let invalid = IdentityClaim::Account { account_id: "user-456".to_string() };
+        let verifier = AccountViewerVerifier {
+            account_id: "user-123".to_string(),
+        };
+        let valid = IdentityClaim::Account {
+            account_id: "user-123".to_string(),
+        };
+        let invalid = IdentityClaim::Account {
+            account_id: "user-456".to_string(),
+        };
         assert!(verifier.verify(&valid).await);
         assert!(!verifier.verify(&invalid).await);
     }

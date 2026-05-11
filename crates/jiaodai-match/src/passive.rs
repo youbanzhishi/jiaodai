@@ -79,7 +79,11 @@ impl PassiveRegistrationManager {
     /// Get all pending (unfulfilled) invitations
     pub fn get_pending(&self) -> Vec<PendingInvitation> {
         let invitations = self.invitations.lock().unwrap();
-        invitations.iter().filter(|inv| !inv.fulfilled).cloned().collect()
+        invitations
+            .iter()
+            .filter(|inv| !inv.fulfilled)
+            .cloned()
+            .collect()
     }
 }
 

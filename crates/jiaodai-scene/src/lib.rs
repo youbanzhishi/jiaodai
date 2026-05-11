@@ -12,10 +12,10 @@
 //! underlying building blocks from jiaodai-seal, jiaodai-unseal,
 //! jiaodai-match, and jiaodai-auth.
 
+pub mod capsule;
 pub mod crush;
 pub mod will;
-pub mod capsule;
 
+pub use capsule::*;
 pub use crush::*;
 pub use will::*;
-pub use capsule::*;

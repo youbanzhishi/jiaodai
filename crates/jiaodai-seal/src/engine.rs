@@ -9,10 +9,10 @@ use jiaodai_core::{
     Tape, TapeStatus, TriggerCondition, Viewer,
 };
 
+use crate::certificate::CertificateManager;
 use crate::crypto::{aes256gcm_encrypt, generate_aes_key, sha256_hash};
 use crate::event::{SealEvent, SealEventBus};
 use crate::hash_store::HashStore;
-use crate::certificate::CertificateManager;
 
 /// Default implementation of the SealEngine with event bus and hash store
 pub struct DefaultSealEngine {
@@ -94,7 +94,10 @@ impl SealEngine for DefaultSealEngine {
         );
 
         // Broadcast events
-        let hash_hex = content_hash.iter().map(|b| format!("{:02x}", b)).collect::<String>();
+        let hash_hex = content_hash
+            .iter()
+            .map(|b| format!("{:02x}", b))
+            .collect::<String>();
         self.event_bus.broadcast(&SealEvent::TapeSealed {
             tape_id: tape_id.clone(),
             creator_id: creator_id.to_string(),
@@ -106,10 +109,8 @@ impl SealEngine for DefaultSealEngine {
             content_hash: hash_hex,
             at: now,
         });
-        self.event_bus.broadcast(&SealEvent::CertificateGenerated {
-            tape_id,
-            at: now,
-        });
+        self.event_bus
+            .broadcast(&SealEvent::CertificateGenerated { tape_id, at: now });
 
         Ok((tape, certificate))
     }
@@ -201,7 +202,10 @@ mod tests {
             .await
             .unwrap();
 
-        let share = CertificateManager::generate_share(&cert.tape_id, crate::certificate::ShareMethod::ShortLink);
+        let share = CertificateManager::generate_share(
+            &cert.tape_id,
+            crate::certificate::ShareMethod::ShortLink,
+        );
         assert!(share.short_link.contains(&cert.tape_id));
     }
 }

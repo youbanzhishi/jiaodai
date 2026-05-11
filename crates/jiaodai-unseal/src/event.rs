@@ -33,10 +33,7 @@ pub enum UnsealEvent {
         at: DateTime<Utc>,
     },
     /// A tape was unsealed
-    TapeUnsealed {
-        tape_id: String,
-        at: DateTime<Utc>,
-    },
+    TapeUnsealed { tape_id: String, at: DateTime<Utc> },
     /// A viewer was notified about an unsealed tape
     ViewerNotified {
         tape_id: String,

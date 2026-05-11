@@ -12,7 +12,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
-use jiaodai_core::{JiaodaiError, SealCertificate, TriggerCondition, Viewer, Result};
+use jiaodai_core::{JiaodaiError, Result, SealCertificate, TriggerCondition, Viewer};
 
 /// Certificate sharing method
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -67,10 +67,7 @@ impl CertificateManager {
     }
 
     /// Generate a shareable reference for a certificate
-    pub fn generate_share(
-        tape_id: &str,
-        method: ShareMethod,
-    ) -> CertificateShare {
+    pub fn generate_share(tape_id: &str, method: ShareMethod) -> CertificateShare {
         CertificateShare {
             tape_id: tape_id.to_string(),
             short_link: format!("https://jiaod.ai/s/{}", tape_id),
@@ -99,14 +96,16 @@ impl CertificateManager {
 
     /// Serialize a certificate for sharing
     pub fn serialize_certificate(certificate: &SealCertificate) -> Result<String> {
-        serde_json::to_string(certificate)
-            .map_err(|e| JiaodaiError::SerializationError(format!("Certificate serialization failed: {}", e)))
+        serde_json::to_string(certificate).map_err(|e| {
+            JiaodaiError::SerializationError(format!("Certificate serialization failed: {}", e))
+        })
     }
 
     /// Deserialize a certificate from a string
     pub fn deserialize_certificate(data: &str) -> Result<SealCertificate> {
-        serde_json::from_str(data)
-            .map_err(|e| JiaodaiError::SerializationError(format!("Certificate deserialization failed: {}", e)))
+        serde_json::from_str(data).map_err(|e| {
+            JiaodaiError::SerializationError(format!("Certificate deserialization failed: {}", e))
+        })
     }
 }
 
@@ -160,8 +159,13 @@ mod tests {
     #[test]
     fn test_verify_certificate_hash() {
         let cert = make_test_certificate();
-        assert!(CertificateManager::verify_certificate_hash(&cert, &[42u8; 32]));
-        assert!(!CertificateManager::verify_certificate_hash(&cert, &[0u8; 32]));
+        assert!(CertificateManager::verify_certificate_hash(
+            &cert,
+            &[42u8; 32]
+        ));
+        assert!(!CertificateManager::verify_certificate_hash(
+            &cert, &[0u8; 32]
+        ));
     }
 
     #[test]

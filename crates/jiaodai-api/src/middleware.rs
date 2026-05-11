@@ -67,7 +67,7 @@ pub async fn auth_middleware(request: Request, next: Next) -> Response {
         "/api/v1/account/refresh",
         "/.well-known/agent.json",
         "/api/v1/openapi.json",
-        "/api/v1/tape/",  // GET status is public
+        "/api/v1/tape/", // GET status is public
         "/api/v1/chain/verify/",
         "/api/v1/openlink/identity-card/",
         "/api/v1/openlink/verify/",

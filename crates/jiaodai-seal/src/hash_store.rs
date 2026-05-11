@@ -97,7 +97,9 @@ impl HashStore {
     pub fn verify_hash(&self, tape_id: &str, content_hash: &[u8; 32]) -> bool {
         let records = self.records.lock().unwrap();
         let hex = hash_to_hex(content_hash);
-        records.iter().any(|r| r.tape_id == tape_id && r.content_hash == hex)
+        records
+            .iter()
+            .any(|r| r.tape_id == tape_id && r.content_hash == hex)
     }
 }
 

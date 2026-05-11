@@ -14,12 +14,12 @@
 //! Architecture: ChainTimestamp trait isolates chain implementation.
 //! Swap chain by providing a different impl — business code unchanged.
 
-pub mod merkle;
-pub mod engine;
-pub mod scheduler;
 pub mod contract;
+pub mod engine;
+pub mod merkle;
+pub mod scheduler;
 
+pub use contract::*;
 pub use engine::*;
 pub use merkle::*;
 pub use scheduler::*;
-pub use contract::*;

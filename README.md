@@ -35,7 +35,9 @@ jiaodai/
 │   ├── jiaodai-unseal/   # Unseal engine (condition state machine + triggers)
 │   ├── jiaodai-match/    # Bidirectional seal matching engine
 │   ├── jiaodai-chain/    # Blockchain timestamp (L2 interaction)
-│   ├── jiaodai-api/      # Axum HTTP API
+│   ├── jiaodai-auth/     # Account system (register/login/JWT/identity verification)
+│   ├── jiaodai-scene/    # Scenario implementations (crush/will/capsule)
+│   ├── jiaodai-api/      # Axum HTTP API + WebSocket + CORS
 │   └── jiaodai-cli/      # CLI entry point
 ```
 
@@ -95,9 +97,27 @@ docker compose up -d
 
 ## Project Status
 
-**Phase 1: Project Skeleton + Data Models + Core Traits** ✅
+**Phase 1-12 Complete** ✅ — v0.1.0, 9 crate Rust workspace, 177 tests all green, cross-platform CI + Release.
 
-See [roadmap](./docs/roadmap-link) for the full 12-phase plan.
+| Phase | Status | Description |
+|-------|--------|-------------|
+| Phase 1 | ✅ | Project Skeleton + Data Models + Core Traits |
+| Phase 2 | ✅ | Account System (register/login/phone binding/identity verification) |
+| Phase 3 | ✅ | Sealing Core (encryption + hash + certificate) |
+| Phase 4 | ✅ | Unseal Engine (heartbeat/match/date/multi-confirm) |
+| Phase 5 | ✅ | Secret Crush Scenario |
+| Phase 6 | ✅ | Last Will Scenario |
+| Phase 7 | ✅ | Time Capsule Scenario |
+| Phase 8 | ✅ | Blockchain Timestamp (Merkle batch + MockChain + verify API) |
+| Phase 9 | ✅ | OpenLink Integration (Identity Card + short link + credential verify) |
+| Phase 10 | ✅ | OpenVault Integration (Shamir SSS M-of-N + VaultConnector) |
+| Phase 11 | ✅ | Web Frontend API (CORS + JWT + WebSocket + OpenAPI spec) |
+| Phase 12 | ✅ | Agent Action Protocol (agent.json + Action middleware + OpenMind) |
+
+![Rust](https://img.shields.io/badge/Rust-1.75+-orange?logo=rust)
+![Tests](https://img.shields.io/badge/tests-177%20%E2%9C%85-brightgreen)
+![License](https://img.shields.io/badge/license-MIT-blue)
+![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows-informational)
 
 ## License
 

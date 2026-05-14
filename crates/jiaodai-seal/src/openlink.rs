@@ -319,7 +319,7 @@ mod tests {
             chain_tx_hash: None,
             chain_block_number: None,
             trigger_condition: TriggerCondition::DateTrigger {
-                open_at: Utc::now() + Duration::days(365),
+                open_at: "2027-06-01T00:00:00Z".parse().unwrap(),
             },
             viewers: vec![Viewer::Anyone],
         }
@@ -348,7 +348,7 @@ mod tests {
 
         assert_eq!(card.card_type, "jiaodai-seal-certificate");
         assert_eq!(card.tape_id, "tape-123");
-        assert_eq!(card.trigger_condition_summary, "date_trigger_20270511");
+        assert_eq!(card.trigger_condition_summary, "date_trigger_20270601");
         assert!(card.chain_proof.is_none());
     }
 

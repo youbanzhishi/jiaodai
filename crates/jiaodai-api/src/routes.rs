@@ -16,8 +16,9 @@
 //! - Phase 12: Agent Action Protocol
 
 use axum::{
+
     extract::{ws::Message, Path, State, WebSocketUpgrade},
-    response::IntoResponse,
+    response::{Html, IntoResponse},
     routing::{get, post},
     Json, Router,
 };
@@ -88,6 +89,13 @@ pub fn app(state: AppState) -> Router {
         .route("/api/v1/openapi.json", get(openapi_spec))
         // Phase 12: Agent Action Protocol
         .route("/.well-known/agent.json", get(agent_discovery))
+        // Web UI pages
+        .route("/", get(web_ui_dashboard))
+        .route("/ui/seals", get(web_ui_seals))
+        .route("/ui/unseal", get(web_ui_unseal))
+        .route("/ui/capsule", get(web_ui_capsule))
+        .route("/ui/chain", get(web_ui_chain))
+        .route("/ui/account", get(web_ui_account))
         .with_state(state)
 }
 
@@ -750,6 +758,38 @@ async fn agent_discovery() -> Json<Value> {
     }))
 }
 
+
+// ===== Web UI page handlers =====
+
+/// GET / - Dashboard
+async fn web_ui_dashboard() -> Html<String> {
+    Html(crate::web_ui::dashboard_page())
+}
+
+/// GET /ui/seals
+async fn web_ui_seals() -> Html<String> {
+    Html(crate::web_ui::seals_page())
+}
+
+/// GET /ui/unseal
+async fn web_ui_unseal() -> Html<String> {
+    Html(crate::web_ui::unseal_page())
+}
+
+/// GET /ui/capsule
+async fn web_ui_capsule() -> Html<String> {
+    Html(crate::web_ui::capsule_page())
+}
+
+/// GET /ui/chain
+async fn web_ui_chain() -> Html<String> {
+    Html(crate::web_ui::chain_page())
+}
+
+/// GET /ui/account
+async fn web_ui_account() -> Html<String> {
+    Html(crate::web_ui::account_page())
+}
 #[cfg(test)]
 mod tests {
     use axum::body::Body;

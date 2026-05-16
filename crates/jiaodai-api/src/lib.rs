@@ -13,6 +13,7 @@ pub mod agent;
 pub mod middleware;
 pub mod routes;
 pub mod state;
+pub mod web_ui;
 
 pub use agent::*;
 pub use middleware::{auth_middleware, cors_layer, NotificationEvent, RateLimitConfig};
